@@ -20,12 +20,12 @@ payment collection, and renewal reminders.
 ## Screenshots
 
 ### Registration
-![Registration Form](./GYM%20Registration%20Form.png)
+[Registration Form](./GYM%20Registration%20Form.png)
 <img width="1080" height="2436" alt="Registration Form" src="https://github.com/user-attachments/assets/994b0708-8971-4a40-9e4a-575170e48f9b" />
 
 ### Workflow
-<img width="960" height="540" alt="Workflow N8N" src="https://github.com/user-attachments/assets/3fadc37b-9df3-469b-a067-3fe46b4a770c" />
 [Workflow](./GYM%20Registration%20and%20Subscription%20Tracker.png)
+<img width="960" height="540" alt="Workflow N8N" src="https://github.com/user-attachments/assets/3fadc37b-9df3-469b-a067-3fe46b4a770c" />
 
 ### Payment
 [Paystack Subscription](./Paystack%20Subcription.png)
@@ -35,7 +35,7 @@ payment collection, and renewal reminders.
 
 
 ### Notifications
-![Welcome Email](./Welcome%20Email.png)
+[Welcome Email](./Welcome%20Email.png)
 <img width="960" height="540" alt="Welcome Email" src="https://github.com/user-attachments/assets/1854be15-3fcb-485d-b854-4f96970a59ea" />
 [Membership Renewal](./Membership%20Renewal%20Message.png)
 <img width="960" height="540" alt="Membership Renewal Message" src="https://github.com/user-attachments/assets/f65fb1b4-8e39-4ea2-bc4c-35cc6eccb0a9" /> 
@@ -48,4 +48,4 @@ payment collection, and renewal reminders.
    
 ### Backend Database (Airtable)
 <img width="960" height="540" alt="GYM Membership database" src="https://github.com/user-attachments/assets/2f22850c-af54-4f82-9b05-4f7a7e4ee39d" />
-![Membership Database](./GYM_Membership_database.png)
+[Membership Database](./GYM_Membership_database.png)
