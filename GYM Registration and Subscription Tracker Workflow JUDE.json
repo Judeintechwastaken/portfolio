@@ -1,0 +1,1853 @@
+{
+  "name": "GYM Registration and Subscription Tracker Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "e1c34f12-b368-4b3e-a960-c64598226baf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        608,
+        336
+      ],
+      "id": "9a0170d6-b57c-46ea-ad38-c0c6c39e94f0",
+      "name": "Webhook",
+      "webhookId": "e1c34f12-b368-4b3e-a960-c64598226baf"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.body.submission.questions[3].value[0].url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1056,
+        432
+      ],
+      "id": "fcead014-01f0-4c41-b55c-93c93e945125",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.imgbb.com/1/upload",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "638398064c2a91f42fa71607bf512304"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "image",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1280,
+        432
+      ],
+      "id": "8a736bdd-9e07-4994-b5ce-9473855a03a3",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d77ff996-d1f0-4585-86cd-16d3ae26fe6a",
+              "name": "Full Name ",
+              "value": "={{ $('Webhook').item.json.body.submission.questions[0].value }}",
+              "type": "string"
+            },
+            {
+              "id": "f0230621-fe61-4b98-a716-0c17c75cc700",
+              "name": "Phone Number",
+              "value": "={{ $('Webhook').item.json.body.submission.questions[1].value }}",
+              "type": "string"
+            },
+            {
+              "id": "72fa0341-d4b2-46e8-b9f3-a04689a71605",
+              "name": "Email",
+              "value": "={{ $('Webhook').item.json.body.submission.questions[2].value }}",
+              "type": "string"
+            },
+            {
+              "id": "53526dc0-cdcd-4cf0-826f-cee44af4b995",
+              "name": "Membership Plan",
+              "value": "={{ $('Webhook').item.json.body.submission.questions[4].value }}",
+              "type": "string"
+            },
+            {
+              "id": "a4f5541f-236d-4d43-9c14-c181a51a4d8d",
+              "name": "Profile Photo",
+              "value": "={{ $json.data.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1504,
+        432
+      ],
+      "id": "b2d9341f-da84-4989-83c8-dd64e5627519",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appaVgunNf23gg3e5",
+          "mode": "list",
+          "cachedResultName": "Forge of The Taken Fitness",
+          "cachedResultUrl": "https://airtable.com/appaVgunNf23gg3e5"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblcxRProRCCay62N",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appaVgunNf23gg3e5/tblcxRProRCCay62N"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Full Name": "={{ $json['Full Name '] }}",
+            "Email": "={{ $json.Email }}",
+            "Phone": "={{ $json['Phone Number'] }}",
+            "Membership Plan": "={{ $json['Membership Plan'] }}",
+            "Start Date": "={{ $now.format('dd-MMM-yyyy') }}",
+            "End Date ": "={{ $now.plus($json['Membership Plan'] === 'Basic (1 Month) Membership' ? 1 : $json['Membership Plan'] === 'Gold (3 Month) Membership' ? 3 : 6, $json['Membership Plan']  === 'Basic Membership' ? 'month' : 'months').format('dd-MMM-yyyy') }}",
+            "Profile Photo": "={{ $json['Profile Photo'] ? '[ {\\n\"url\": \"' + $json['Profile Photo'] + '\"\\n}  \\n]' : '' }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Profile Photo",
+              "displayName": "Profile Photo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Membership Plan",
+              "displayName": "Membership Plan",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Start Date",
+              "displayName": "Start Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "End Date ",
+              "displayName": "End Date ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1792,
+        432
+      ],
+      "id": "0fcf461b-d739-4ffb-bbec-0281804bccd5",
+      "name": "Create a record1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "yZUr0xXNmpcvD3ND",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0244003d-1e32-4f9b-8a90-4ec5b9d7832d",
+              "name": "First Name ",
+              "value": "={{ $json.fields['Full Name'].split(' ')[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2080,
+        432
+      ],
+      "id": "ae3f816f-d389-42fb-a063-c00fbee2ee03",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.fields.Email }}",
+        "subject": "Welcome to The Forge of The Taken",
+        "message": "=<div style=\"max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;\">    <div style=\"background: #0D0D0D; padding: 2rem 2.5rem; text-align: center;\">     <p style=\"font-size: 22px; font-weight: bold; color: #E8001D; margin: 0; letter-spacing: 3px;\">FORGE OF THE TAKEN FITNESS</p>     <p style=\"font-size: 12px; color: #888; margin: 4px 0 0; letter-spacing: 2px;\">YOUR STRONGEST CHAPTER STARTS HERE</p>   </div>    <div style=\"background: #ffffff; padding: 2.5rem; border: 1px solid #e5e5e5;\">      <p style=\"font-size: 22px; font-weight: bold; color: #0D0D0D; margin: 0 0 1rem;\">       Welcome, <span style=\"color: #E8001D;\">{{ $json['First Name '] }}</span>!     </p>      <p style=\"font-size: 15px; color: #555; line-height: 1.7; margin: 0 0 1.5rem;\">       We're fired up to have you join the Forge of The Taken family. Your membership is officially active and your journey starts now. No excuses, no looking back.     </p>      <div style=\"background: #f7f7f7; border-radius: 8px; padding: 1.25rem 1.5rem; margin: 0 0 1.5rem;\">       <p style=\"font-size: 12px; font-weight: bold; color: #888; letter-spacing: 1.5px; text-transform: uppercase; margin: 0 0 1rem;\">Membership Details</p>       <table style=\"width: 100%; font-size: 14px;\">         <tr>           <td style=\"color: #888; padding: 6px 0;\">Member</td>           <td style=\"font-weight: bold; color: #0D0D0D; text-align: right;\">{{ $json.fields['Full Name'] }}</td>         </tr>         <tr>           <td style=\"color: #888; padding: 6px 0;\">Membership Tier</td>           <td style=\"font-weight: bold; color: #0D0D0D; text-align: right;\">{{ $json.fields['Membership Plan'] }}</td>         </tr>         <tr>           <td style=\"color: #888; padding: 6px 0;\">Start Date</td>           <td style=\"font-weight: bold; color: #0D0D0D; text-align: right;\">{{ $json.fields['Start Date'] }}</td>         </tr>         <tr>           <td style=\"color: #888; padding: 6px 0;\">End Date</td>           <td style=\"font-weight: bold; color: #E8001D; text-align: right;\">{{ $json.fields['End Date '] }}</td>         </tr>       </table>     </div>      <p style=\"font-size: 15px; color: #555; line-height: 1.7; margin: 0 0 2rem;\">       Walk through our doors ready to work. Our team is here to support every rep, every set, and every milestone. Reach out anytime at info@forgeofthetaken.com.     </p>      <div style=\"text-align: center; margin: 0 0 2rem;\">       <span style=\"display: inline-block; background: #E8001D; color: #fff; font-size: 13px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; padding: 14px 40px; border-radius: 6px;\">Let's Get To Work</span>     </div>      <div style=\"border-top: 1px solid #e5e5e5; padding-top: 1.25rem; text-align: center;\">       <p style=\"font-size: 12px; color: #aaa; margin: 0 0 4px;\">Forge of The Taken Fitness · info@forgeofthetaken.com</p>       <p style=\"font-size: 12px; color: #aaa; margin: 0;\">Follow us on Instagram & TikTok @forgeofthetakenfitness</p>     </div>    </div> </div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2592,
+        432
+      ],
+      "id": "5a55254e-7b84-413e-a9d6-1bf77f950899",
+      "name": "Send a message1",
+      "webhookId": "746a4d37-3d01-4a79-a92a-708633415df8",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CArax1P6hK7xQWUb",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2336,
+        432
+      ],
+      "id": "9b60dca0-ceb0-4ede-8119-c70b3b90bc9c",
+      "name": "Wait1",
+      "webhookId": "ebcfb23a-85fc-4cbf-8b59-b49c29506fc6"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        608,
+        752
+      ],
+      "id": "ce1b04ec-3014-4a9e-a518-1ed3e2cd5df8",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appaVgunNf23gg3e5",
+          "mode": "list",
+          "cachedResultName": "Forge of The Taken Fitness",
+          "cachedResultUrl": "https://airtable.com/appaVgunNf23gg3e5"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblcxRProRCCay62N",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appaVgunNf23gg3e5/tblcxRProRCCay62N"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        752
+      ],
+      "id": "ff7fb8b7-4af7-4890-9d3a-139998119596",
+      "name": "Search records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "yZUr0xXNmpcvD3ND",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ac701712-501c-482b-8192-bfee4c78b6d1",
+              "name": "Full Name ",
+              "value": "={{ $json.fields['Full Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "8f49a7b8-9778-46db-959b-1ad76d80bc37",
+              "name": "Email ",
+              "value": "={{ $json.fields.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "67529508-89a4-4db3-9141-7beb068f52dc",
+              "name": "Phone Number",
+              "value": "={{ $json.fields.Phone }}",
+              "type": "string"
+            },
+            {
+              "id": "73f67117-9784-460c-bbac-5d1e82cd6083",
+              "name": "Membership Plan",
+              "value": "={{ $json.fields['Membership Plan'] }}",
+              "type": "string"
+            },
+            {
+              "id": "e29c1536-4ed2-4d4a-8c9c-d03174717bf8",
+              "name": "Start Date",
+              "value": "={{ $json.fields['Start Date'] }}",
+              "type": "string"
+            },
+            {
+              "id": "608550a4-7cce-4a42-a8dc-40023040df8b",
+              "name": "End Date",
+              "value": "={{ $json.fields['End Date '] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1056,
+        752
+      ],
+      "id": "7b8e4710-ad52-4cb4-85c3-7b45ad0b7942",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "963b1dc0-7599-45d0-9f20-792722d3bffa",
+              "leftValue": "={{ $json['End Date'] }}",
+              "rightValue": "={{ $now.plus(3, 'days').format('yyyy-MM-dd') }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1280,
+        656
+      ],
+      "id": "a0c6f1ad-921d-45c1-bda8-cb712a0ed35b",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bfeefa27-6a2e-4e68-9b2c-4d970c71fd7e",
+              "name": "First Name ",
+              "value": "={{ $json.fields['Full Name'].split(' ')[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1504,
+        640
+      ],
+      "id": "fd159928-239d-45e5-82e2-7f0129f23597",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('If').item.json.fields.Email }}",
+        "subject": "Your Membership with The Forge of The Taken is about to End!!",
+        "message": "=<div style=\"max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;\">\n\n  <div style=\"background: #0D0D0D; padding: 2rem 2.5rem; text-align: center;\">\n    <p style=\"font-size: 20px; font-weight: bold; color: #E8001D; margin: 0; letter-spacing: 3px;\">FORGE OF THE TAKEN FITNESS</p>\n    <p style=\"font-size: 11px; color: #888; margin: 4px 0 0; letter-spacing: 2px;\">YOUR STRONGEST CHAPTER STARTS HERE</p>\n  </div>\n\n  <div style=\"background: #ffffff; padding: 2.5rem; border: 1px solid #e5e5e5;\">\n\n    <div style=\"background: #fff4f4; border-left: 4px solid #E8001D; border-radius: 4px; padding: 1rem 1.25rem; margin: 0 0 1.5rem;\">\n      <p style=\"font-size: 13px; font-weight: bold; color: #E8001D; margin: 0; letter-spacing: 1px;\">⚠ MEMBERSHIP EXPIRING IN 3 DAYS</p>\n    </div>\n\n    <p style=\"font-size: 22px; font-weight: bold; color: #0D0D0D; margin: 0 0 1rem;\">\n      Hey <span style=\"color: #E8001D;\">{{ $json['First Name '] }}</span>, don't lose your momentum.\n    </p>\n\n    <p style=\"font-size: 15px; color: #555; line-height: 1.7; margin: 0 0 1.5rem;\">\n      Your <strong>{{ $json['Membership Plan'] }}</strong> is expiring in \n      <strong style=\"color: #E8001D;\">3 days</strong>. You've put in the work don't \n      let it stop now. Renew your membership today and keep the grind going!\n    </p>\n\n    <div style=\"background: #f7f7f7; border-radius: 8px; padding: 1.25rem 1.5rem; margin: 0 0 1.5rem;\">\n      <p style=\"font-size: 12px; font-weight: bold; color: #888; letter-spacing: 1.5px; text-transform: uppercase; margin: 0 0 1rem;\">Membership Details</p>\n      <table style=\"width: 100%; font-size: 14px;\">\n        <tr>\n          <td style=\"color: #888; padding: 6px 0;\">Member</td>\n          <td style=\"font-weight: bold; color: #0D0D0D; text-align: right;\">{{ $json['First Name '] }}</td>\n        </tr>\n        <tr>\n          <td style=\"color: #888; padding: 6px 0;\">Membership Tier</td>\n          <td style=\"font-weight: bold; color: #0D0D0D; text-align: right;\">{{ $json['Membership Plan'] }}</td>\n        </tr>\n        <tr>\n          <td style=\"color: #888; padding: 6px 0;\">Expiry Date</td>\n          <td style=\"font-weight: bold; color: #E8001D; text-align: right;\">{{ $json['End Date'] }}</td>\n        </tr>\n      </table>\n    </div>\n\n    <p style=\"font-size: 15px; color: #555; line-height: 1.7; margin: 0 0 2rem;\">\n      Renewing takes less than a minute. Click the button below or reach out to us \n      directly and we'll sort it out for you right away.\n    </p>\n\n    <div style=\"text-align: center; margin: 0 0 1.5rem;\">\n      <a href=\"YOUR_RENEWAL_LINK_HERE\" style=\"display: inline-block; background: #E8001D; color: #fff; font-size: 13px; font-weight: bold; letter-spacing: 1.5px; text-decoration: none; text-transform: uppercase; padding: 14px 40px; border-radius: 6px;\">Renew My Membership</a>\n    </div>\n\n    <p style=\"font-size: 13px; color: #aaa; text-align: center; margin: 0 0 2rem;\">\n      If you have already renewed or need assistance, contact us at \n      <span style=\"color: #E8001D;\">info@forgeofthetaken.com</span>\n    </p>\n\n    <div style=\"border-top: 1px solid #e5e5e5; padding-top: 1.25rem; text-align: center;\">\n      <p style=\"font-size: 12px; color: #aaa; margin: 0 0 4px;\">Forge of The Taken Fitness · info@forgeofthetaken.com</p>\n      <p style=\"font-size: 12px; color: #aaa; margin: 0;\">Follow us on Instagram & TikTok @forgeofthetakenfitness</p>\n    </div>\n\n  </div>\n</div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1728,
+        640
+      ],
+      "id": "ed7ef0c7-ee5d-4df6-99b3-c9de91941863",
+      "name": "Send a message",
+      "webhookId": "09854269-3f93-4dcb-965f-ba43c0cacc75",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CArax1P6hK7xQWUb",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "826115339",
+        "text": "=🏋️ *FORGE OF THE TAKEN FITNESS*\n━━━━━━━━━━━━━━━━━━━━\n\n⚠️ *MEMBERSHIP EXPIRATION ALERT*\n\nA client's membership is expiring in *3 days* and requires your follow up.\n\n━━━━━━━━━━━━━━━━━━━━\n👤 *Client Details*\n\n- *Name: {{ $('If').item.json.fields['Full Name'] }}\n- *Phone: {{ $('If').item.json.fields.Phone }}\n- *Email: {{ $('If').item.json.fields.Email }}\n- *Membership Plan: {{ $('If').item.json.fields['Membership Plan'] }}\n- *Expiry Date: {{ $('If').item.json.fields['End Date '] }}\n\n━━━━━━━━━━━━━━━━━━━━\n📋 *Action Required*\n\nPlease reach out to {{ $('Edit Fields1').item.json['First Name '] }} to confirm \ntheir renewal and ensure they stay on track.\n\n━━━━━━━━━━━━━━━━━━━━\n🕐 *Alert sent: {{ $now.format('yyyy-MM-dd') }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1984,
+        640
+      ],
+      "id": "03da3e4d-4aad-4b33-8799-a75648cc8d34",
+      "name": "Send a text message",
+      "webhookId": "9114b292-1c00-4cd5-a442-bdab7fdf6f58",
+      "credentials": {
+        "telegramApi": {
+          "id": "tW3FjYFeg7I4FlAh",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d84d986b-0fae-47bc-8ad5-65693feb587b",
+              "leftValue": "={{ DateTime.fromISO($json['End Date']).toISODate() }}",
+              "rightValue": "={{ DateTime.now().toISODate() }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1280,
+        848
+      ],
+      "id": "c822fb40-795d-4891-8727-3c383a2f2923",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "placeholder-id",
+              "name": "First Name",
+              "value": "={{ $json.fields['Full Name'].split(' ')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "558fcc64-9da1-4411-a67d-b4b71a50aa72",
+              "name": "End Date",
+              "value": "={{ $json.fields['End Date '] }}",
+              "type": "string"
+            },
+            {
+              "id": "341aee9b-4137-4787-aa06-d6c58bcf1cb7",
+              "name": "Email",
+              "value": "={{ $json.fields.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "02e34f8e-1cd5-4dcd-9e15-6a91936d84c8",
+              "name": "Membership Plan",
+              "value": "={{ $json.fields['Membership Plan'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1504,
+        832
+      ],
+      "id": "0db7cda1-2fd5-4575-8307-8387502816a6",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "6acf4a3e-a92e-4280-b413-5384ef2ec013",
+                    "leftValue": "={{ $json.body.submission.questions[3].value[0].url }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "No Photo Upload"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1dacab4b-cf26-4de7-928e-0350a547b1c5",
+                    "leftValue": "={{ $json.body.submission.questions[3].value[0].url }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Photo upload"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        336
+      ],
+      "id": "8a756318-f8e3-4578-9740-6f63875d2b61",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d77ff996-d1f0-4585-86cd-16d3ae26fe6a",
+              "name": "Full Name ",
+              "value": "={{ $json.body.submission.questions[0].value }}",
+              "type": "string"
+            },
+            {
+              "id": "f0230621-fe61-4b98-a716-0c17c75cc700",
+              "name": "Phone Number",
+              "value": "={{ $json.body.submission.questions[1].value }}",
+              "type": "string"
+            },
+            {
+              "id": "72fa0341-d4b2-46e8-b9f3-a04689a71605",
+              "name": "Email",
+              "value": "={{ $json.body.submission.questions[2].value }}",
+              "type": "string"
+            },
+            {
+              "id": "53526dc0-cdcd-4cf0-826f-cee44af4b995",
+              "name": "Membership Plan",
+              "value": "={{ $json.body.submission.questions[4].value }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "50807e08-fb67-465b-88aa-83dfbca97d2f",
+      "name": "Edit Fields No Photo",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1072,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.paystack.co/transaction/initialize",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"{{ $json.fields['Email'] }}\",\n  \"amount\": \"{{ $json.fields['Membership Plan'].includes('Basic') ? 500000 : $json.fields['Membership Plan'].includes('Gold') ? 1500000 : 2500000 }}\",\n  \"metadata\": {\n    \"airtable_record_id\": \"{{ $json.id }}\",\n    \"membership_plan\": \"{{ $json.fields['Membership Plan'] }}\",\n    \"member_name\": \"{{ $json.fields['Full Name'] }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1712,
+        832
+      ],
+      "id": "704677a8-ce1b-49d1-9045-57eb74cddc8d",
+      "name": "HTTP Request2",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RIEmGHeNOUgqjZPm",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0fa8b9ba-690e-440d-a85a-96c5007b8586",
+              "name": "Platinum Link",
+              "value": "={{ $json.data.authorization_url }}",
+              "type": "string"
+            },
+            {
+              "id": "a0e4ef2b-e3e1-45d9-b5b3-f10ba8c6f6ba",
+              "name": "reference",
+              "value": "={{ $json.data.reference }}",
+              "type": "string"
+            },
+            {
+              "id": "29959979-1d60-40b7-b1df-57f6e36d9c6e",
+              "name": "Full Name",
+              "value": "={{ $('Edit Fields4').item.json.fields['Full Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "95de7b8b-0f0c-4f43-acf0-d34c8ed5b798",
+              "name": "Email",
+              "value": "={{ $('Edit Fields4').item.json.fields.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "a441b743-2c21-45db-9641-ffd295292684",
+              "name": "Membership Plan",
+              "value": "={{ $('Edit Fields4').item.json.fields['Membership Plan'] }}",
+              "type": "string"
+            },
+            {
+              "id": "7bcdbd1b-9fea-4fab-881c-998e40abfe90",
+              "name": "End Date",
+              "value": "={{ $('Edit Fields4').item.json.fields['End Date '] }}",
+              "type": "string"
+            },
+            {
+              "id": "ae0c4f72-a459-4846-83ef-534491505bb6",
+              "name": "Gold Link",
+              "value": "={{ $('HTTP Request3').item.json.data.authorization_url }}",
+              "type": "string"
+            },
+            {
+              "id": "9041bb1f-8154-4ea6-839d-ca2838cd885b",
+              "name": "Basic Link",
+              "value": "={{ $('HTTP Request2').item.json.data.authorization_url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2336,
+        832
+      ],
+      "id": "b3c6f75d-bd52-4447-831a-cc0b7b2cf9dd",
+      "name": "Edit Fields5"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "🚨 Your Membership Expired - Choose Your Plan & Renew Now",
+        "message": "=<div style=\"background:#1a1a1a;padding:30px;font-family:Arial,sans-serif;\">\n  <h1 style=\"color:#ff4444;text-align:center;\">\n    FORGE OF THE TAKEN FITNESS\n  </h1>\n  <p style=\"color:#999;text-align:center;\">\n    YOUR STRONGEST CHAPTER STARTS HERE\n  </p>\n  <div style=\"background:#2a2a2a;padding:25px;border-radius:8px;\">\n    <p style=\"color:#ff4444;font-weight:bold;\">\n      🚨 MEMBERSHIP EXPIRED TODAY\n    </p>\n    <h2 style=\"color:#ffffff;\">\n      Hey {{ $('Edit Fields4').item.json['First Name'] }}, your membership has expired.\n    </h2>\n    <p style=\"color:#cccccc;\">\n      Your <strong>{{ $json['Membership Plan'] }}</strong> expired today.\n      Choose a plan below and renew instantly to keep your momentum going!\n    </p>\n    <div style=\"background:#333;padding:15px;border-radius:8px;margin:20px 0;\">\n      <p style=\"color:#999;font-size:12px;\">MEMBERSHIP DETAILS</p>\n      <p style=\"color:#fff;\">Member: <strong>{{ $json['Full Name'] }}</strong></p>\n      <p style=\"color:#fff;\">Plan: <strong>{{ $json['Membership Plan'] }}</strong></p>\n      <p style=\"color:#ff4444;\">Expired: <strong>{{ $json['End Date'] }}</strong></p>\n    </div>\n    <p style=\"color:#999;text-align:center;margin:20px 0;\">\n      SELECT YOUR NEW PLAN\n    </p>\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n      <tr>\n        <td align=\"center\" style=\"padding:5px 0;\">\n          <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\">\n            <tr>\n              <td align=\"center\" bgcolor=\"#444444\"\n                  style=\"border-radius:5px;padding:15px 30px;\">\n                <a href=\"{{ $json['Basic Link'] }}\"\n                   style=\"color:#ffffff;text-decoration:none;\n                   font-weight:bold;font-size:16px;display:block;\">\n                  🥉 BASIC - 1 MONTH | ₦5,000\n                </a>\n              </td>\n            </tr>\n          </table>\n        </td>\n      </tr>\n      <tr>\n        <td align=\"center\" style=\"padding:5px 0;\">\n          <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\">\n            <tr>\n              <td align=\"center\" bgcolor=\"#b8860b\"\n                  style=\"border-radius:5px;padding:15px 30px;\">\n                <a href=\"{{ $json['Gold Link'] }}\"\n                   style=\"color:#ffffff;text-decoration:none;\n                   font-weight:bold;font-size:16px;display:block;\">\n                  🥈 GOLD - 3 MONTHS | ₦15,000\n                </a>\n              </td>\n            </tr>\n          </table>\n        </td>\n      </tr>\n      <tr>\n        <td align=\"center\" style=\"padding:5px 0;\">\n          <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\">\n            <tr>\n              <td align=\"center\" bgcolor=\"#ff4444\"\n                  style=\"border-radius:5px;padding:15px 30px;\">\n                <a href=\"{{ $json['Platinum Link'] }}\"\n                   style=\"color:#ffffff;text-decoration:none;\n                   font-weight:bold;font-size:16px;display:block;\">\n                  🥇 PLATINUM - 6 MONTHS | ₦25,000\n                </a>\n              </td>\n            </tr>\n          </table>\n        </td>\n      </tr>\n    </table>\n  </div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2544,
+        832
+      ],
+      "id": "975974ff-7d4c-450f-a005-b3354c4d0c0b",
+      "name": "Send a message2",
+      "webhookId": "a2387acc-d6ec-436b-8ef0-c69642bb20d2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CArax1P6hK7xQWUb",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appaVgunNf23gg3e5",
+          "mode": "list",
+          "cachedResultName": "Forge of The Taken Fitness",
+          "cachedResultUrl": "https://airtable.com/appaVgunNf23gg3e5"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblcxRProRCCay62N",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appaVgunNf23gg3e5/tblcxRProRCCay62N"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Full Name": "={{ $json['Full Name '] }}",
+            "Email": "={{ $json.Email }}",
+            "Phone": "={{ $json['Phone Number'] }}",
+            "Membership Plan": "={{ $json['Membership Plan'] }}",
+            "End Date ": "={{ $now.plus($json['Membership Plan'] === 'Basic (1 Month) Membership' ? 1 : $json['Membership Plan'] === 'Gold (3 Month) Membership' ? 3 : 6, $json['Membership Plan']  === 'Basic Membership' ? 'month' : 'months').format('dd-MMM-yyyy') }}",
+            "Start Date": "={{ $now.format('dd-MMM-yyyy') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Profile Photo",
+              "displayName": "Profile Photo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Membership Plan",
+              "displayName": "Membership Plan",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Start Date",
+              "displayName": "Start Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "End Date ",
+              "displayName": "End Date ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        240
+      ],
+      "id": "37853545-b99d-4c83-a9df-c46306c3de63",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "yZUr0xXNmpcvD3ND",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6a14d916-9530-47c9-ac10-207e41ea6b8f",
+              "name": "First Name",
+              "value": "={{ $json.fields['Full Name'].split(' ')[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1488,
+        240
+      ],
+      "id": "21f0b95b-db4d-4792-87c5-dd68caf1932a",
+      "name": "Edit Fields6"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1696,
+        240
+      ],
+      "id": "71bf4328-7bd6-4cf7-8abb-feb42ec0270f",
+      "name": "Wait",
+      "webhookId": "5c425db8-fbf7-4a3e-8a15-324450cb90a5"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.fields.Email }}",
+        "subject": "Welcome to The Forge of The Taken",
+        "message": "=<div style=\"max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;\">    <div style=\"background: #0D0D0D; padding: 2rem 2.5rem; text-align: center;\">     <p style=\"font-size: 22px; font-weight: bold; color: #E8001D; margin: 0; letter-spacing: 3px;\">FORGE OF THE TAKEN FITNESS</p>     <p style=\"font-size: 12px; color: #888; margin: 4px 0 0; letter-spacing: 2px;\">YOUR STRONGEST CHAPTER STARTS HERE</p>   </div>    <div style=\"background: #ffffff; padding: 2.5rem; border: 1px solid #e5e5e5;\">      <p style=\"font-size: 22px; font-weight: bold; color: #0D0D0D; margin: 0 0 1rem;\">       Welcome, <span style=\"color: #E8001D;\">{{ $json['First Name'] }}</span>!     </p>      <p style=\"font-size: 15px; color: #555; line-height: 1.7; margin: 0 0 1.5rem;\">       We're fired up to have you join the Forge of The Taken family. Your membership is officially active and your journey starts now. No excuses, no looking back.     </p>      <div style=\"background: #f7f7f7; border-radius: 8px; padding: 1.25rem 1.5rem; margin: 0 0 1.5rem;\">       <p style=\"font-size: 12px; font-weight: bold; color: #888; letter-spacing: 1.5px; text-transform: uppercase; margin: 0 0 1rem;\">Membership Details</p>       <table style=\"width: 100%; font-size: 14px;\">         <tr>           <td style=\"color: #888; padding: 6px 0;\">Member</td>           <td style=\"font-weight: bold; color: #0D0D0D; text-align: right;\">{{ $json.fields['Full Name'] }}</td>         </tr>         <tr>           <td style=\"color: #888; padding: 6px 0;\">Membership Tier</td>           <td style=\"font-weight: bold; color: #0D0D0D; text-align: right;\">{{ $json.fields['Membership Plan'] }}</td>         </tr>         <tr>           <td style=\"color: #888; padding: 6px 0;\">Start Date</td>           <td style=\"font-weight: bold; color: #0D0D0D; text-align: right;\">{{ $json.fields['Start Date'] }}</td>         </tr>         <tr>           <td style=\"color: #888; padding: 6px 0;\">End Date</td>           <td style=\"font-weight: bold; color: #E8001D; text-align: right;\">{{ $json.fields['End Date '] }}</td>         </tr>       </table>     </div>      <p style=\"font-size: 15px; color: #555; line-height: 1.7; margin: 0 0 2rem;\">       Walk through our doors ready to work. Our team is here to support every rep, every set, and every milestone. Reach out anytime at info@forgeofthetaken.com.     </p>      <div style=\"text-align: center; margin: 0 0 2rem;\">       <span style=\"display: inline-block; background: #E8001D; color: #fff; font-size: 13px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; padding: 14px 40px; border-radius: 6px;\">Let's Get To Work</span>     </div>      <div style=\"border-top: 1px solid #e5e5e5; padding-top: 1.25rem; text-align: center;\">       <p style=\"font-size: 12px; color: #aaa; margin: 0 0 4px;\">Forge of The Taken Fitness · info@forgeofthetaken.com</p>       <p style=\"font-size: 12px; color: #aaa; margin: 0;\">Follow us on Instagram & TikTok @forgeofthetakenfitness</p>     </div>    </div> </div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1952,
+        240
+      ],
+      "id": "828ee61e-1655-47f8-9404-d23a98ede5a6",
+      "name": "Send a message3",
+      "webhookId": "83f07f02-1db9-4e46-80e4-e17d05b64bac",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CArax1P6hK7xQWUb",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "826115339",
+        "text": "=🏋️ FORGE OF THE TAKEN FITNESS\n―――――――――――――――――――――\n\n🚨 MEMBERSHIP EXPIRED TODAY\n\nA client's membership has expired today and a payment link has been sent to their email.\n\n―――――――――――――――――――――\n👤 Client Details\n\n- Name: {{ $('Edit Fields5').item.json['Full Name'] }}\n- Phone: {{ $('Edit Fields4').item.json.fields.Phone }}\n- Email: {{ $('Edit Fields5').item.json.Email }}\n- Membership Plan: {{ $('Edit Fields5').item.json['Membership Plan'] }}\n- Expired: {{ $('Edit Fields5').item.json['End Date'] }}\n\n―――――――――――――――――――――\n💳 Payment Link Sent\n\nA unique Paystack renewal link has been automatically sent to {{ $('Edit Fields5').item.json.Email }}. \n\nPlease follow up with {{ $('Edit Fields5').item.json['Full Name'] }} to confirm they received it and encourage them to renew.\n\n―――――――――――――――――――――\n🕐 Alert sent: {{ $now.toISODate() }}\n\nThis message was sent automatically with n8n",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2752,
+        832
+      ],
+      "id": "b6fa17bf-0674-4748-83a7-2b72c50fb77a",
+      "name": "Send a text message1",
+      "webhookId": "1ecd4006-5c45-4fd4-899e-e7702afb68bf",
+      "credentials": {
+        "telegramApi": {
+          "id": "tW3FjYFeg7I4FlAh",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.paystack.co/transaction/initialize",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"{{ $('Edit Fields4').item.json.fields['Email'] }}\",\n  \"amount\": \"1500000\",\n  \"metadata\": {\n    \"airtable_record_id\": \"{{ $('Edit Fields4').item.json.id }}\",\n    \"membership_plan\": \"Gold (3 Month) Membership\",\n    \"member_name\": \"{{ $('Edit Fields4').item.json.fields['Full Name'] }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1920,
+        832
+      ],
+      "id": "f0a499c7-356c-4670-8569-7848c9e2411b",
+      "name": "HTTP Request3",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RIEmGHeNOUgqjZPm",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.paystack.co/transaction/initialize",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"{{ $('Edit Fields4').item.json.fields['Email'] }}\",\n  \"amount\": \"2500000\",\n  \"metadata\": {\n    \"airtable_record_id\": \"{{ $('Edit Fields4').item.json.id }}\",\n    \"membership_plan\": \"Platinum (6 Month) Membership\",\n    \"member_name\": \"{{ $('Edit Fields4').item.json.fields['Full Name'] }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2128,
+        832
+      ],
+      "id": "8e9a6b52-73bb-4c80-88e2-a53dec997bc0",
+      "name": "HTTP Request4",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RIEmGHeNOUgqjZPm",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "paystack-confirmation",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        608,
+        1056
+      ],
+      "id": "b928390f-d048-44a5-9c87-8cd16eaa6ea0",
+      "name": "Webhook1",
+      "webhookId": "fa153632-a9e0-4031-aae5-f283f6b68e94"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d86b5fc6-6f0d-4e50-a484-ac0598151374",
+              "name": "member name",
+              "value": "={{ $json.body.data.metadata.member_name }}",
+              "type": "string"
+            },
+            {
+              "id": "b18bc9ad-374b-4328-acca-e0c31433ae11",
+              "name": "membership plan",
+              "value": "={{ $json.body.data.metadata.membership_plan }}",
+              "type": "string"
+            },
+            {
+              "id": "441b215e-dbba-4410-a091-a90757268e9d",
+              "name": "airtable record ID",
+              "value": "={{ $json.body.data.metadata.airtable_record_id }}",
+              "type": "string"
+            },
+            {
+              "id": "84cb4774-8adc-4b91-8338-9a0b2b808073",
+              "name": "Email",
+              "value": "={{ $json.body.data.customer.email }}",
+              "type": "string"
+            },
+            {
+              "id": "c514c1a7-8c0c-49b5-be0a-93f114383466",
+              "name": "Amount",
+              "value": "={{ $json.body.data.amount }}",
+              "type": "number"
+            },
+            {
+              "id": "f3f4c2d1-60e7-4f4f-a70a-1511b2c2c921",
+              "name": "reference",
+              "value": "={{ $json.body.data.reference }}",
+              "type": "string"
+            },
+            {
+              "id": "2ba5780d-3850-4cbd-965c-5567b590c098",
+              "name": "New Start date",
+              "value": "={{ $now.toISODate() }}",
+              "type": "string"
+            },
+            {
+              "id": "92bbde0d-b806-4371-a1d2-2006a419cb5e",
+              "name": "New End Date",
+              "value": "={{ $json.body.data.metadata.membership_plan.includes('Basic') ? $now.plus({months:1}).toISODate() : $json.body.data.metadata.membership_plan.includes('Gold') ? $now.plus({months:3}).toISODate() : $now.plus({months:6}).toISODate() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        816,
+        1056
+      ],
+      "id": "19861a00-a391-4dac-86de-5160f2e9cc79",
+      "name": "Edit Fields7"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appaVgunNf23gg3e5",
+          "mode": "list",
+          "cachedResultName": "Forge of The Taken Fitness",
+          "cachedResultUrl": "https://airtable.com/appaVgunNf23gg3e5"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblcxRProRCCay62N",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appaVgunNf23gg3e5/tblcxRProRCCay62N"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json['airtable record ID'] }}",
+            "Membership Plan": "={{ $json['membership plan'] }}",
+            "Start Date": "={{ $json['New Start date'] }}",
+            "End Date ": "={{ $json['New End Date'] }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Profile Photo",
+              "displayName": "Profile Photo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Membership Plan",
+              "displayName": "Membership Plan",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Start Date",
+              "displayName": "Start Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "End Date ",
+              "displayName": "End Date ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1024,
+        1056
+      ],
+      "id": "d2b7643a-b34b-4cd8-822f-d0e7eaf3e12a",
+      "name": "Update record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "yZUr0xXNmpcvD3ND",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Update record').item.json.fields.Email }}",
+        "subject": "✅ Membership Renewed - Welcome Back to The Forge!",
+        "message": "=<div style=\"background:#1a1a1a;padding:30px;font-family:Arial,sans-serif;\">\n  <h1 style=\"color:#ff4444;text-align:center;\">\n    FORGE OF THE TAKEN FITNESS\n  </h1>\n  <p style=\"color:#999;text-align:center;\">\n    YOUR STRONGEST CHAPTER STARTS HERE\n  </p>\n  <div style=\"background:#2a2a2a;padding:25px;border-radius:8px;\">\n    <p style=\"color:#00cc00;font-weight:bold;\">\n      ✅ MEMBERSHIP RENEWED SUCCESSFULLY\n    </p>\n    <h2 style=\"color:#ffffff;\">\n      Welcome back, {{ $json['First Name'] }}!\n    </h2>\n    <p style=\"color:#cccccc;\">\n      Your payment was successful and your membership \n      is now active. Keep pushing, no excuses!\n    </p>\n    <div style=\"background:#333;padding:15px;border-radius:8px;margin:20px 0;\">\n      <p style=\"color:#999;font-size:12px;\">MEMBERSHIP DETAILS</p>\n      <p style=\"color:#fff;\">Member: <strong></strong>{{ $('Edit Fields7').item.json['member name'] }}</p>\n      <p style=\"color:#fff;\">Plan: <strong>{{ $('Edit Fields7').item.json['membership plan'] }}</strong></p>\n      <p style=\"color:#fff;\">Start Date: <strong>{{ $('Edit Fields7').item.json['New Start date'] }}</strong></p>\n      <p style=\"color:#00cc00;\">End Date: <strong>{{ $('Edit Fields7').item.json['New End Date'] }}</strong></p>\n      <p style=\"color:#fff;\">Amount Paid: <strong>₦{{ $('Edit Fields7').item.json.Amount }}</strong></p>\n      <p style=\"color:#fff;\">Reference: <strong>{{ $('Edit Fields7').item.json.reference }}</strong></p>\n    </div>\n    <p style=\"color:#cccccc;text-align:center;\">\n      Walk through our doors ready to work. \n      Our team is here to support you every step of the way!\n    </p>\n  </div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        1056
+      ],
+      "id": "2c9bd39a-16bd-426b-9db7-8a73432f472b",
+      "name": "Send a message4",
+      "webhookId": "7d1bcd4d-26f0-45dd-af77-92231a1e6390",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CArax1P6hK7xQWUb",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "25dc367d-76d6-4678-834c-502f6ebec466",
+              "name": "First Name",
+              "value": "={{ $json.fields['Full Name'] .split(' ')[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1232,
+        1056
+      ],
+      "id": "aa5bd8c8-a020-4c18-b5c9-1eb6373f3c7e",
+      "name": "Edit Fields8"
+    },
+    {
+      "parameters": {
+        "chatId": "826115339",
+        "text": "=🏋️ FORGE OF THE TAKEN FITNESS\n―――――――――――――――――――――\n\n💰 PAYMENT RECEIVED\n\nA member has successfully renewed their membership.\n\n―――――――――――――――――――――\n👤 Member Details\n\n- Name: {{ $('Update record').item.json.fields['Full Name'] }}\n- Email: {{ $('Update record').item.json.fields.Email }}\n- New Plan: {{ $('Update record').item.json.fields['Membership Plan'] }}\n- Amount Paid: ₦{{ $json.amount / 100 }}\n- Start Date: {{ $('Update record').item.json.fields['Start Date'] }}\n- End Date: {{ $('Update record').item.json.fields['End Date '] }}\n- Reference: {{ $('Edit Fields7').item.json.reference }}\n\n―――――――――――――――――――――\n✅ Airtable has been updated automatically.\n\n🕐 Payment confirmed: {{ $now.toISODate() }}\n",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1648,
+        1056
+      ],
+      "id": "148c9544-54cc-456f-9b8a-d407abb43cc7",
+      "name": "Send a text message2",
+      "webhookId": "f707c572-6768-42d1-a0e0-f4b7b8fbf21e",
+      "credentials": {
+        "telegramApi": {
+          "id": "tW3FjYFeg7I4FlAh",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "826115339",
+        "text": "=🏋️ FORGE OF THE TAKEN FITNESS \n\n―――――――――――――――――――――  \n\n🎉 NEW MEMBER REGISTERED  A new client has just joined the Forge family!  \n\n――――――――――――――――――――― \n\n👤 Member Details \n- Name: {{ $('Wait').item.json.fields['Full Name'] }} \n- Phone: {{ $('Wait').item.json.fields.Phone }} \n- Email: {{ $('Wait').item.json.fields.Email }} \n- Membership Plan: {{ $('Wait').item.json.fields['Membership Plan'] }} \n- Start Date: {{ $('Wait').item.json.fields['Start Date'] }} \n- End Date: {{ $('Wait').item.json.fields['End Date '] }} \n\n――――――――――――――――――――― \n\n📋 Action Required  Please ensure {{ $('Wait').item.json['First Name'] }} is welcomed and onboarded properly on their  first visit to the gym.  \n\n――――――――――――――――――――― \n\n🕐 Registered: {{ $now.toISODate() }}  ",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2208,
+        240
+      ],
+      "id": "7b7f8449-aa14-40d0-b47d-60d3fc7723af",
+      "name": "Send a text message3",
+      "webhookId": "bc3dd9c6-6f17-4e2c-bbfe-a0296df5c313",
+      "credentials": {
+        "telegramApi": {
+          "id": "tW3FjYFeg7I4FlAh",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "826115339",
+        "text": "=🏋️ FORGE OF THE TAKEN FITNESS \n\n―――――――――――――――――――――  \n\n🎉 NEW MEMBER REGISTERED  A new client has just joined the Forge family!  \n\n――――――――――――――――――――― \n\n👤 Member Details \n- Name: {{ $('Wait1').item.json.fields['Full Name'] }}\n- Phone: {{ $('Wait1').item.json.fields.Phone }} \n- Email: {{ $('Wait1').item.json.fields.Email }}\n- Membership Plan: {{ $('Wait1').item.json.fields['Membership Plan'] }}\n- Start Date: {{ $('Wait1').item.json.fields['Start Date'] }}\n- End Date: {{ $('Wait1').item.json.fields['End Date '] }}\n\n――――――――――――――――――――― \n\n📋 Action Required  Please ensure {{ $('Wait1').item.json['First Name '] }} is welcomed and onboarded properly on their  first visit to the gym.  \n\n――――――――――――――――――――― \n\n🕐 Registered: {{ $now.toISODate() }}  ",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2800,
+        432
+      ],
+      "id": "9d09fbaa-4683-47b2-b921-31c2c7df488e",
+      "name": "Send a text message4",
+      "webhookId": "a30e6956-8330-4773-b33e-5b5b59750e9c",
+      "credentials": {
+        "telegramApi": {
+          "id": "tW3FjYFeg7I4FlAh",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        2272,
+        1072
+      ],
+      "id": "30ef915f-d4bd-4caf-9247-7f23b6d77c03",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "chatId": "826115339",
+        "text": "=🏋️ FORGE OF THE TAKEN FITNESS \n\n―――――――――――――――――――――  \n\n🚨 WORKFLOW ERROR DETECTED  An error has occurred in the GYM Registration  and Subscription Tracker Workflow and requires  your immediate attention. \n\n――――――――――――――――――――― \n\n⚠️ Error Details \n- Workflow: {{ $workflow.name }} \n- Error Message: {{ $json.execution.error.message }} \n- Node: {{ $json.execution.lastNodeExecuted }}\n- Execution ID: {{ $execution.id }} \n\n――――――――――――――――――――― \n\n📋 Action Required  Please log into n8n immediately and check  the execution logs to resolve the issue.  🔗 n8n Dashboard: https://judethetakenofficial.app.n8n.cloud \n\n――――――――――――――――――――― \n🕐 Error Time: {{ $now.toISODate() }}  ",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2480,
+        1072
+      ],
+      "id": "e42a7d13-5219-4533-9749-e3e4bfa30636",
+      "name": "Send a text message5",
+      "webhookId": "f4dbf77c-f7c3-4780-9af7-9b1c3a055090",
+      "credentials": {
+        "telegramApi": {
+          "id": "tW3FjYFeg7I4FlAh",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Create a record1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields No Photo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields No Photo": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields6": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        []
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields7": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields8": {
+      "main": [
+        [
+          {
+            "node": "Send a message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message4": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message3": {
+      "main": [
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a text message5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "b1798cd3-e019-4860-b952-4bf29d9c2779",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3369bb7ab023b87ccfdbf28bb148349aa247e00f3b685c5676ebb304007cda12"
+  },
+  "id": "rf045MfHa9bVV1j7",
+  "tags": []
+}
