@@ -1,2 +1,2 @@
 # portfolio
-My Portfolio projects
+This is a Portfolio of my ai automated projects
