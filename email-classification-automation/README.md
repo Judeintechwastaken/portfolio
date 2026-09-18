@@ -65,7 +65,7 @@ The easy version of this workflow lets the AI send replies straight away. This o
 
 **The workflow in n8n**
 
-[Full workflow canvas] <img width="960" height="540" alt="06-workflow-canvas-overview" src="https://github.com/user-attachments/assets/50a972ff-9c04-4404-8da6-5275e080b7b4" />
+[Full workflow canvas] <img width="960" height="540" alt="14-audit-log-google-sheets" src="https://github.com/user-attachments/assets/190c9dce-3418-42e4-8973-5b202297ae8a" />
 
 [Node execution / data debug view] <img width="960" height="540" alt="05-workflow-node-debug-view" src="https://github.com/user-attachments/assets/c93b3fa1-7955-49ab-bca8-99bb68a47066" />
 
@@ -89,7 +89,7 @@ The easy version of this workflow lets the AI send replies straight away. This o
 
 **Audit log**
 
-[Every classification logged to Google Sheets] <img width="960" height="540" alt="14-audit-log-google-sheets" src="https://github.com/user-attachments/assets/190c9dce-3418-42e4-8973-5b202297ae8a" />
+[Every classification logged to Google Sheets] <img width="960" height="540" alt="06-workflow-canvas-overview" src="https://github.com/user-attachments/assets/50a972ff-9c04-4404-8da6-5275e080b7b4" />
 
 ## Known Limitations & Next Steps
 
