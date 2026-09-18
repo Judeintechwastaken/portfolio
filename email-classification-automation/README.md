@@ -56,7 +56,7 @@ The easy version of this workflow lets the AI send replies straight away. This o
 **Inbound emails (triggers)**
 
 [Finance — overdue invoice] <img width="960" height="540" alt="01-inbound-email-finance" src="https://github.com/user-attachments/assets/80abe4f4-69ed-46ba-aa24-07a6c4d38961" />
-[HR — formal complaint] <img width="960" height="540" alt="02-inbound-email-hr" src="https://github.com/user-attachments/assets/b18f432c-d752-4e67-a9a0-9e26c6b22d50" />
+  [HR — formal complaint] <img width="960" height="540" alt="02-inbound-email-hr" src="https://github.com/user-attachments/assets/b18f432c-d752-4e67-a9a0-9e26c6b22d50" />
 [Customer Service — delayed order] <img width="960" height="540" alt="03-inbound-email-customer-service" src="https://github.com/user-attachments/assets/3f1ec681-166b-4357-a124-37a7909e4398" />
 [Operations — supply restock request] <img width="960" height="540" alt="04-inbound-email-operations" src="https://github.com/user-attachments/assets/7b1c2b6a-8c74-4a01-98e1-e04b2b43efec" />
 
