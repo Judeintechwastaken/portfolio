@@ -1,3 +1,17 @@
+<img width="960" height="540" alt="14-audit-log-google-sheets" src="https://github.com/user-attachments/assets/190c9dce-3418-42e4-8973-5b202297ae8a" />
+<img width="1080" height="2436" alt="13-sent-reply-operations" src="https://github.com/user-attachments/assets/e0318cf5-dba8-47e4-88c5-5206326a2b2b" />
+<img width="1080" height="2436" alt="12-sent-reply-finance" src="https://github.com/user-attachments/assets/073207d3-9cbd-4d4c-b623-fa7dfb108e60" />
+<img width="1080" height="2436" alt="11-sent-reply-human-resources" src="https://github.com/user-attachments/assets/6056707f-8aba-48ce-a46e-37b71fb851df" />
+<img width="960" height="540" alt="10-slack-approval-operations" src="https://github.com/user-attachments/assets/aa533a96-6a15-4658-a789-e179b5033186" />
+<img width="960" height="540" alt="09-slack-approval-customer-service" src="https://github.com/user-attachments/assets/537abdbe-a623-4032-8b12-ec33ebb43223" />
+<img width="960" height="540" alt="08-slack-approval-finance" src="https://github.com/user-attachments/assets/ff5eddd6-f9c9-4b4d-9937-ba7a78ccdad6" />
+<img width="960" height="540" alt="07-slack-approval-human-resources" src="https://github.com/user-attachments/assets/5ff27f98-8333-41a9-988f-c0f627f4acb3" />
+<img width="960" height="540" alt="06-workflow-canvas-overview" src="https://github.com/user-attachments/assets/50a972ff-9c04-4404-8da6-5275e080b7b4" />
+<img width="960" height="540" alt="05-workflow-node-debug-view" src="https://github.com/user-attachments/assets/c93b3fa1-7955-49ab-bca8-99bb68a47066" />
+<img width="960" height="540" alt="04-inbound-email-operations" src="https://github.com/user-attachments/assets/7b1c2b6a-8c74-4a01-98e1-e04b2b43efec" />
+<img width="960" height="540" alt="03-inbound-email-customer-service" src="https://github.com/user-attachments/assets/3f1ec681-166b-4357-a124-37a7909e4398" />
+<img width="960" height="540" alt="02-inbound-email-hr" src="https://github.com/user-attachments/assets/b18f432c-d752-4e67-a9a0-9e26c6b22d50" />
+<img width="960" height="540" alt="01-inbound-email-finance" src="https://github.com/user-attachments/assets/80abe4f4-69ed-46ba-aa24-07a6c4d38961" />
 # Email Classification & Response Automation
 
 An AI-driven email triage system that classifies inbound business email by department and priority, drafts a context-aware reply, routes it to the right team for human approval, and logs every decision for auditability — built in n8n with Google Gemini as the reasoning engine.
