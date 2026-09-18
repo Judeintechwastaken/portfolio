@@ -56,8 +56,11 @@ The easy version of this workflow lets the AI send replies straight away. This o
 **Inbound emails (triggers)**
 
 [Finance — overdue invoice] <img width="960" height="540" alt="01-inbound-email-finance" src="https://github.com/user-attachments/assets/80abe4f4-69ed-46ba-aa24-07a6c4d38961" />
-  [HR — formal complaint] <img width="960" height="540" alt="02-inbound-email-hr" src="https://github.com/user-attachments/assets/b18f432c-d752-4e67-a9a0-9e26c6b22d50" />
+
+[HR — formal complaint] <img width="960" height="540" alt="02-inbound-email-hr" src="https://github.com/user-attachments/assets/b18f432c-d752-4e67-a9a0-9e26c6b22d50" />
+
 [Customer Service — delayed order] <img width="960" height="540" alt="03-inbound-email-customer-service" src="https://github.com/user-attachments/assets/3f1ec681-166b-4357-a124-37a7909e4398" />
+
 [Operations — supply restock request] <img width="960" height="540" alt="04-inbound-email-operations" src="https://github.com/user-attachments/assets/7b1c2b6a-8c74-4a01-98e1-e04b2b43efec" />
 
 **The workflow in n8n**
@@ -69,14 +72,19 @@ The easy version of this workflow lets the AI send replies straight away. This o
 **Slack human-in-the-loop approvals**
 
 [Approval request — Human Resources] <img width="960" height="540" alt="07-slack-approval-human-resources" src="https://github.com/user-attachments/assets/5ff27f98-8333-41a9-988f-c0f627f4acb3" />
+
 [Approval request — Finance (Critical priority)] <img width="960" height="540" alt="08-slack-approval-finance" src="https://github.com/user-attachments/assets/ff5eddd6-f9c9-4b4d-9937-ba7a78ccdad6" />
+
 [Approval request — Customer Service] <img width="960" height="540" alt="09-slack-approval-customer-service" src="https://github.com/user-attachments/assets/537abdbe-a623-4032-8b12-ec33ebb43223" />
+
 [Approval request — Operations] <img width="960" height="540" alt="10-slack-approval-operations" src="https://github.com/user-attachments/assets/aa533a96-6a15-4658-a789-e179b5033186" />
 
 **Replies sent after approval**
 
 [Sent reply — Human Resources case] <img width="1080" height="2436" alt="11-sent-reply-human-resources" src="https://github.com/user-attachments/assets/6056707f-8aba-48ce-a46e-37b71fb851df" />
+
 [Sent reply — Finance case] <img width="1080" height="2436" alt="12-sent-reply-finance" src="https://github.com/user-attachments/assets/073207d3-9cbd-4d4c-b623-fa7dfb108e60" />
+
 [Sent reply — Operations case] <img width="1080" height="2436" alt="13-sent-reply-operations" src="https://github.com/user-attachments/assets/e0318cf5-dba8-47e4-88c5-5206326a2b2b" />
 
 **Audit log**
