@@ -91,3 +91,23 @@ The easy version of this workflow lets the AI send replies straight away. This o
 
 [Every classification logged to Google Sheets] <img width="960" height="540" alt="06-workflow-canvas-overview" src="https://github.com/user-attachments/assets/50a972ff-9c04-4404-8da6-5275e080b7b4" />
 
+## Known Limitations & Next Steps
+
+Being upfront about these is part of the engineering — a workflow presented as flawless is less convincing than one with a clear-eyed list of what's next:
+
+- **"Other" classification has no destination.** The Switch node only routes five departments; an email the AI tags as "Other" currently falls through with no Slack notification, no reply, and no log entry. Fix: add a default/fallback output routing to a general triage channel.
+- **Rejected emails aren't logged.** The Google Sheets append only happens after an approved send, so a rejected classification leaves no audit trail. Fix: log every classification outcome, approved or not, with a status column.
+- **No handling for malformed model output.** If Gemini returns anything the Code node can't parse as JSON, the run fails outright rather than degrading gracefully. Fix: wrap the parse in a try/catch with a fallback "needs manual review" path.
+- **No approval timeout.** If nobody responds in Slack, the workflow waits indefinitely. Fix: add a timeout with automatic escalation.
+- **No de-duplication check.** Repeated trigger polls could theoretically reprocess the same message. Fix: track processed message IDs.
+
+## Setup
+
+1. Import `Email_Classification_Workflow_JUDE.json` into n8n.
+2. Connect credentials: Gmail OAuth2 (trigger + send), Google Gemini API key, Slack OAuth2 (with channel IDs for each department), and a Google Sheets connection to your own tracking sheet.
+3. Update the Switch node's department values and the Slack channel IDs to match your own team structure.
+4. Activate the workflow — new inbox mail will start flowing through within a minute.
+
+---
+
+Built by **Dr. Chibuzo Jude Mbama** — physician and AI automation engineer, applying the same risk-aware, human-checked design instincts from clinical practice to business process automation.
