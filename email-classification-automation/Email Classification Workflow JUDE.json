@@ -1,0 +1,1600 @@
+{
+  "name": "Email Classification Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0e64313b-ca72-497e-9a8a-97f14bc774f2",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XMbouNtwdCSxPLvA",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional email assistant for our company. You have two jobs:\n\n1. CLASSIFY the incoming email into the correct department and priority.\n2. WRITE a polite, professional auto-reply to the sender.\n\nClassification Rules:\n- Department must be one of: Sales, Customer Service, Human Resources, Finance, Operations, Other\n- Priority must be one of: High, Medium, Low, Critical\n- Use Critical for legal threats, overdue payments, \n  compliance issues or anything with serious financial \n  or legal consequences\n- Base priority on urgency, tone, and content of the email\n\n\nReply Rules:\n- Be warm and professional\n- Tell the sender their email has been received and routed to the correct department\n- Give an estimated response time based on priority:\n    High = within 2 hours\n    Medium = within 24 hours\n    Low = within 3 business days\n- Do NOT mention AI or automation\n- Sign off as: The Support Team\n- Structure the reply in exactly 3 short paragraphs separated by \\n\\n like this:\n    Paragraph 1: Warm greeting and confirm email was received\n    Paragraph 2: State which department it was routed to and the response time\n    Paragraph 3: Closing and sign off as The Support Team\n\nReturn ONLY this exact JSON on a single line, no extra text, no markdown, no backticks:\n\n{\"department\": \"Sales | Customer Service | Human Resources | Finance | Operations | Other\", \"priority\": \"High | Medium | Low\", \"reason\": \"one sentence explaining the classification\", \"reply\": \"Paragraph 1 here.\\n\\nParagraph 2 here.\\n\\nParagraph 3 here.\\n\\nThe Support Team\"}\n\nEmail Subject: {{ $json.Subject }}\nEmail Body: {{ $json.snippet }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "5004ea11-de58-4892-b328-75be50a6dbfb",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        176,
+        176
+      ],
+      "id": "16b41bc6-139e-4000-9a10-a8c911eb9072",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "csPcDYAEvroMVMCP",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6451c355-ea94-4092-ae4f-2fbf7d05e6bd",
+              "name": "Department",
+              "value": "={{ $json.department }}",
+              "type": "string"
+            },
+            {
+              "id": "bfceaf95-0227-4d91-93fd-37ba8c7275b0",
+              "name": "Priority",
+              "value": "={{ $json.priority }}",
+              "type": "string"
+            },
+            {
+              "id": "ea5a631a-3dd1-4a20-86e7-b103e1701878",
+              "name": "Reason",
+              "value": "={{ $json.reason }}",
+              "type": "string"
+            },
+            {
+              "id": "ea444255-d8b4-4990-8121-045a069e1e00",
+              "name": "Reply",
+              "value": "={{ $json.reply }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        0
+      ],
+      "id": "5f953abc-7e50-4e4c-a5cf-a49833c605bd",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.item.json.output;\n\nconst clean = raw\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\nconst parsed = JSON.parse(clean);\n\nreturn {\n  json: {\n    department: parsed.department,\n    priority: parsed.priority,\n    reason: parsed.reason,\n    reply: parsed.reply\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        528,
+        0
+      ],
+      "id": "bda1e55c-75e9-4442-b41b-3bb4e04fb232",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.Department }}",
+                    "rightValue": "Sales",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "9bacc1ac-2d37-42a6-9def-2593e85089b5"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Sales"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "27aa2b05-8757-42ea-8b09-b42a568e7edb",
+                    "leftValue": "={{ $json.Department }}",
+                    "rightValue": "Customer Service",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Customer Service"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "05ac466d-6789-4be0-ba11-70f72c62a751",
+                    "leftValue": "={{ $json.Department }}",
+                    "rightValue": "Human Resources",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Human Resources"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1ac5a920-3245-49e9-88ed-ff1bdc350fe7",
+                    "leftValue": "={{ $json.Department }}",
+                    "rightValue": "Finance",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Finance"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "3de9db15-c2f2-49a4-b8e2-a87add60c219",
+                    "leftValue": "={{ $json.Department }}",
+                    "rightValue": "Operations",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Operations"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        912,
+        -48
+      ],
+      "id": "d877271c-4078-44fd-ba7a-e4073efb5ed2",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0B7BR3PU7J",
+          "mode": "list",
+          "cachedResultName": "sales"
+        },
+        "message": "=🚨 *New Email Received — Sales Department*\n\n*From: {{ $('Gmail Trigger').item.json.From }}\n\n*Subject: {{ $('Gmail Trigger').item.json.Subject }}\n\n*Priority: {{ $json.Priority }}\n\n*Reason: {{ $json.Reason }}\n\n*Proposed Auto-Reply:\n{{ $json.Reply }}\n\n✅ Reply \"APPROVE\" to send this auto-reply to the sender\n❌ Reply \"REJECT\" to discard it",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        1280,
+        -320
+      ],
+      "id": "dcadf5f1-2247-41d7-8709-69b2ce26fa9a",
+      "name": "Send message and wait for response",
+      "webhookId": "17379ca5-ef3a-4bc5-a2cb-5b5c421380d7",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "xMGdwKOWGq9D0MAz",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1520,
+        -320
+      ],
+      "id": "8f802965-06d2-45aa-9375-d2c338070d8c",
+      "name": "Wait",
+      "webhookId": "11975add-cf0c-4e75-a490-8b0a085e5dcb"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger').item.json.From }}",
+        "subject": "=RE: {{ $('Gmail Trigger').item.json.Subject }}",
+        "message": "={{ $('Switch').item.json.Reply }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1968,
+        -336
+      ],
+      "id": "6d8709b8-cbe8-4d57-9b80-f9b7dac00f39",
+      "name": "Send a message",
+      "webhookId": "12e29154-52eb-465e-8b3e-abb2cce70a02",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XMbouNtwdCSxPLvA",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bd15cd70-eead-45c9-9ec5-961f35614458",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "e9726fa3-36be-421a-b288-3eb7c9e1811c",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1728,
+        -320
+      ],
+      "id": "d1007df9-4a78-4070-b387-0676067a2de8",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0B6E5TLB7F",
+          "mode": "list",
+          "cachedResultName": "customer-service"
+        },
+        "message": "=🎧 *New Email Received — Customer Service Department*\n\n*From: {{ $('Gmail Trigger').item.json.From }}\n*Subject: {{ $('Gmail Trigger').item.json.Subject }}\n*Priority: {{ $('Code in JavaScript').item.json.priority }}\n*Reason: {{ $('Code in JavaScript').item.json.reason }}\n\n*Proposed Auto-Reply: {{ $('Code in JavaScript').item.json.reply }}\n\n✅ Click APPROVE to send this auto-reply\n❌ Click REJECT to discard it",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        1280,
+        -128
+      ],
+      "id": "4a8cd6c4-5e01-429e-a3f2-e9e78fe42bb0",
+      "name": "Send message and wait for response1",
+      "webhookId": "3881f89f-9aef-4f42-8ed9-2f394f268567",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "xMGdwKOWGq9D0MAz",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6a6803cb-1f7f-4a4b-881e-0cf16e83c850",
+              "name": "Timestamp",
+              "value": "={{ $now.format('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "object"
+            },
+            {
+              "id": "67b48ebc-96d1-4b9e-8468-b0d4ac1fa575",
+              "name": "From",
+              "value": "={{ $('Gmail Trigger').item.json.From }}",
+              "type": "string"
+            },
+            {
+              "id": "6a931e04-5f1a-43fb-9f40-65b7a6a0e331",
+              "name": "Subject ",
+              "value": "={{ $('Gmail Trigger').item.json.Subject }}",
+              "type": "string"
+            },
+            {
+              "id": "87152e86-020b-434e-a401-48dcae20f36a",
+              "name": "Department",
+              "value": "={{ $('Switch').item.json.Department }}",
+              "type": "string"
+            },
+            {
+              "id": "76cb7fff-4f9a-427e-a0fd-15386576cb36",
+              "name": "Priority",
+              "value": "={{ $('Switch').item.json.Priority }}",
+              "type": "string"
+            },
+            {
+              "id": "ce6746d4-bbd0-4e6b-ad81-36db8a03e1f3",
+              "name": "Reason",
+              "value": "={{ $('Switch').item.json.Reason }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2192,
+        -336
+      ],
+      "id": "85aec3f8-0e8b-401a-b697-f6939cf1b0e6",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1U_HFLNCqtnx0-854vX4dnk-PtMDuzNU2yRXh_Ae3Y3I",
+          "mode": "list",
+          "cachedResultName": "Email Classification Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1U_HFLNCqtnx0-854vX4dnk-PtMDuzNU2yRXh_Ae3Y3I/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1U_HFLNCqtnx0-854vX4dnk-PtMDuzNU2yRXh_Ae3Y3I/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.Timestamp }}",
+            "From": "={{ $json.From }}",
+            "Subject": "={{ $json.Subject }}",
+            "Department": "={{ $json.Department }}",
+            "Priority": "={{ $json.Priority }}",
+            "Reason": "={{ $json.Reason }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "From",
+              "displayName": "From",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Department",
+              "displayName": "Department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reason",
+              "displayName": "Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2944,
+        64
+      ],
+      "id": "fedc075d-270e-4c4a-a727-19288c69c8dc",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ubamr2wToEW77hv8",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1520,
+        -128
+      ],
+      "id": "94cecaa0-3e27-4b5a-8b5b-f89bd5885b58",
+      "name": "Wait1",
+      "webhookId": "790286ea-4fab-4606-bbef-7ad6f73948d8"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "18a22e08-9288-4430-a035-81564db0ed36",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "ca2988df-dfbf-4648-a92b-07392b515e6a",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1744,
+        -128
+      ],
+      "id": "2da11f0b-1c2c-4d6b-8ed7-6035df8ba8be",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0B6FF7QMP0",
+          "mode": "list",
+          "cachedResultName": "human-resources"
+        },
+        "message": "=👥 *New Email Received — Human Resources Department*\n\n*From: {{ $('Gmail Trigger').item.json.From }}\n*Subject: {{ $('Gmail Trigger').item.json.Subject }}\n*Priority: {{ $json.Priority }}\n*Reason: {{ $json.Reason }}\n\n*Proposed Auto-Reply:\n{{ $json.Reply }}\n\n✅ Click APPROVE to send this auto-reply\n❌ Click REJECT to discard it",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        1280,
+        48
+      ],
+      "id": "52d77a84-380d-41f0-b956-678f57170b2f",
+      "name": "Send message and wait for response2",
+      "webhookId": "65050d0f-801d-48cc-9e96-ab29f4a32784",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "xMGdwKOWGq9D0MAz",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1520,
+        48
+      ],
+      "id": "355f0fb5-bd03-4af5-af7e-77fdf23c37f9",
+      "name": "Wait2",
+      "webhookId": "7787e33b-28c3-4209-8a68-6187757391eb"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d5dd7118-6d66-42ee-a066-0faa68e05fbf",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "a6b61fa2-8033-4211-bb93-55bc47d59c9b",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1744,
+        48
+      ],
+      "id": "b2fc7425-d80f-4e28-91e5-8d351755f7d5",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0B6HHGBR0S",
+          "mode": "list",
+          "cachedResultName": "finance"
+        },
+        "message": "=💰 *New Email Received — Finance Department*\n\n*From: {{ $('Gmail Trigger').item.json.From }}\n*Subject: {{ $('Gmail Trigger').item.json.Subject }}\n*Priority: {{ $json.Priority }}\n*Reason: {{ $json.Reason }}\n\n*Proposed Auto-Reply: {{ $json.Reply }}\n\n✅ Click APPROVE to send this auto-reply\n❌ Click REJECT to discard it",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        1280,
+        240
+      ],
+      "id": "f7338a14-077c-4236-8d7f-a0014937e678",
+      "name": "Send message and wait for response3",
+      "webhookId": "4c43dbee-57d1-4c32-bf2e-415a9f6afca1",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "xMGdwKOWGq9D0MAz",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1520,
+        240
+      ],
+      "id": "8d22ea27-14be-4a00-8a1b-7be6fd82cec5",
+      "name": "Wait3",
+      "webhookId": "92239cf2-e9a3-4594-b843-390d474fb8cc"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1063a4f7-6b9d-4065-b779-b38abc81c3bb",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "e47c93eb-d926-4c83-9946-14a913196e12",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1728,
+        240
+      ],
+      "id": "9281f84e-0833-4fbf-85bd-d0193f93c2d1",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0B6B6KKJ8K",
+          "mode": "list",
+          "cachedResultName": "operations"
+        },
+        "message": "=⚙️ *New Email Received — Operations Department*\n\n*From: {{ $('Gmail Trigger').item.json.From }}\n*Subject: {{ $('Gmail Trigger').item.json.Subject }}\n*Priority: {{ $json.Priority }}\n*Reason: {{ $json.Reason }}\n*Proposed Auto-Reply: {{ $json.Reply }}\n\n✅ Click APPROVE to send this auto-reply\n❌ Click REJECT to discard it",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        1280,
+        448
+      ],
+      "id": "d3d3033d-d884-4e5f-ae8c-9cdd0c6e479e",
+      "name": "Send message and wait for response4",
+      "webhookId": "7594fb7c-7d32-48d3-ad8f-57e3646d1784",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "xMGdwKOWGq9D0MAz",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1520,
+        448
+      ],
+      "id": "5c08a59e-952b-4842-94f1-e3966281c8c0",
+      "name": "Wait4",
+      "webhookId": "9a758377-fc13-4361-8250-913c41943906"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "be2d6266-961e-4520-a085-6a76689bea9b",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "1c2bdbcc-3e8a-4b21-933f-f3e0cd563a3d",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1728,
+        448
+      ],
+      "id": "7226d20b-44fc-4846-a755-6768dbd355a2",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger').item.json.From }}",
+        "subject": "=RE:  {{ $('Gmail Trigger').item.json.Subject }}",
+        "message": "={{ $('Switch').item.json.Reply }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1984,
+        -144
+      ],
+      "id": "169d8d51-9c54-423e-ac36-2849180d7361",
+      "name": "Send a message1",
+      "webhookId": "f7d8e810-5bbd-4900-8b67-d5aff958d899",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XMbouNtwdCSxPLvA",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0ba158ab-74a8-4bc5-9a00-8df44d5a6cc4",
+              "name": "Timestamp",
+              "value": "={{ $now.format('yyyy-MM-dd HH:mm:ss ') }}",
+              "type": "object"
+            },
+            {
+              "id": "c928eb10-9cd2-468f-85dc-92bda4e9eac5",
+              "name": "From ",
+              "value": "={{ $('Gmail Trigger').item.json.From }}",
+              "type": "string"
+            },
+            {
+              "id": "3654b431-1b19-4e80-a054-00bb1d9eb57e",
+              "name": "Subject",
+              "value": "={{ $('Gmail Trigger').item.json.Subject }}",
+              "type": "string"
+            },
+            {
+              "id": "5cac364e-db04-4d6a-a762-2e54d8a02438",
+              "name": "Department",
+              "value": "={{ $('Switch').item.json.Department }}",
+              "type": "string"
+            },
+            {
+              "id": "45ee4294-7e73-4e53-9ab3-a1771aa9c336",
+              "name": "Priority",
+              "value": "={{ $('Switch').item.json.Priority }}",
+              "type": "string"
+            },
+            {
+              "id": "d01e87c9-897e-40ab-a1f4-e8871b9c7dfd",
+              "name": "Reason",
+              "value": "={{ $('Switch').item.json.Reason }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2192,
+        -144
+      ],
+      "id": "2909b4ce-93e1-48d0-a1f6-f852829ef74f",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger').item.json.From }}",
+        "subject": "=RE:  {{ $('Gmail Trigger').item.json.Subject }}",
+        "message": "={{ $('Switch').item.json.Reply }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2000,
+        32
+      ],
+      "id": "f242d889-a49e-4e34-97cf-dc4f15f46e48",
+      "name": "Send a message2",
+      "webhookId": "9db6eabb-7602-4c3e-a2c3-bf1a105e1720",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XMbouNtwdCSxPLvA",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3b45cdc5-d531-498f-8a5e-318c44dc5b48",
+              "name": "Timestamp",
+              "value": "={{ $now.format('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "object"
+            },
+            {
+              "id": "9a66154e-c8c6-4e7f-8667-137d1aee42be",
+              "name": "From",
+              "value": "={{ $('Gmail Trigger').item.json.From }}",
+              "type": "string"
+            },
+            {
+              "id": "16437a30-50e9-4ef3-b263-f04d5d69ced0",
+              "name": "Subject",
+              "value": "={{ $('Gmail Trigger').item.json.Subject }}",
+              "type": "string"
+            },
+            {
+              "id": "91e28cad-a893-4fb8-b16c-be95aa4984c9",
+              "name": "Department",
+              "value": "={{ $('Switch').item.json.Department }}",
+              "type": "string"
+            },
+            {
+              "id": "9e8f0f57-9820-47f6-b94c-2fae4640580f",
+              "name": "Priority",
+              "value": "={{ $('Switch').item.json.Priority }}",
+              "type": "string"
+            },
+            {
+              "id": "6d19924a-66db-40fd-85c2-9b64036b0d46",
+              "name": "Reason",
+              "value": "={{ $('Switch').item.json.Reason }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2208,
+        32
+      ],
+      "id": "543a24c4-ae75-4cfc-97d8-4a78115bad77",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger').item.json.From }}",
+        "subject": "=RE:  {{ $('Gmail Trigger').item.json.Subject }}",
+        "message": "={{ $('Switch').item.json.Reply }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2000,
+        224
+      ],
+      "id": "b4314cb5-01ff-4efb-87cf-2501cce1a426",
+      "name": "Send a message3",
+      "webhookId": "1b7209da-5d9b-4ecc-a427-4f26f8914960",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XMbouNtwdCSxPLvA",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3c7ed495-29d7-42a6-840d-967fe14947c2",
+              "name": "Timestamp",
+              "value": "={{ $now.format('yyyy-MM-dd HH:mm:ss ') }}",
+              "type": "object"
+            },
+            {
+              "id": "264863d3-f13c-4e6b-ba2a-d64db2de5656",
+              "name": "From",
+              "value": "={{ $('Gmail Trigger').item.json.From }}",
+              "type": "string"
+            },
+            {
+              "id": "bd306737-0b9d-4615-abb1-aa3d94e8d671",
+              "name": "Subject",
+              "value": "={{ $('Gmail Trigger').item.json.Subject }}",
+              "type": "string"
+            },
+            {
+              "id": "a667f26f-e045-46bf-b949-91938ff0fcb1",
+              "name": "Department",
+              "value": "={{ $('Switch').item.json.Department }}",
+              "type": "string"
+            },
+            {
+              "id": "64778f74-148d-4b8b-b35a-e4c3e72c9525",
+              "name": "Priority",
+              "value": "={{ $('Switch').item.json.Priority }}",
+              "type": "string"
+            },
+            {
+              "id": "d467258d-f80a-4afa-8d28-310791c90846",
+              "name": "Reason",
+              "value": "={{ $('Switch').item.json.Reason }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2208,
+        224
+      ],
+      "id": "158fa297-6688-43fd-b732-2daa3487b21a",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger').item.json.From }}",
+        "subject": "=RE: {{ $('Gmail Trigger').item.json.Subject }}",
+        "message": "={{ $('Switch').item.json.Reply }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2016,
+        432
+      ],
+      "id": "3f14eac4-62c1-4a37-a3ea-e72faa45f20d",
+      "name": "Send a message4",
+      "webhookId": "863d87f7-4b62-49a6-a0a4-32aec128a36c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XMbouNtwdCSxPLvA",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b9d30060-44cb-4ee7-a181-2d2b01057155",
+              "name": "Timestamp",
+              "value": "={{ $now.format('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "object"
+            },
+            {
+              "id": "958301b6-6b05-4414-ba09-f743ffb3f535",
+              "name": "From",
+              "value": "={{ $('Gmail Trigger').item.json.From }}",
+              "type": "string"
+            },
+            {
+              "id": "fb4e4e1f-e66f-49af-9819-0bca5415e6cc",
+              "name": "Subject",
+              "value": "={{ $('Gmail Trigger').item.json.Subject }}",
+              "type": "string"
+            },
+            {
+              "id": "1fb75c45-0ef4-4b12-90ed-c9ec4b2d232c",
+              "name": "Department",
+              "value": "={{ $('Switch').item.json.Department }}",
+              "type": "string"
+            },
+            {
+              "id": "277759f6-0759-45e1-b111-0b17ad2d63aa",
+              "name": "Priority",
+              "value": "={{ $('Switch').item.json.Priority }}",
+              "type": "string"
+            },
+            {
+              "id": "6238a0c8-a0ff-48f7-bf43-85b447b27c50",
+              "name": "Reason",
+              "value": "={{ $('Switch').item.json.Reason }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2224,
+        432
+      ],
+      "id": "434cbc2d-94d9-4068-9f3a-135728b0c1fd",
+      "name": "Edit Fields5"
+    }
+  ],
+  "pinData": {
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "19e8937ae2a5a25a",
+          "threadId": "19e8937ae2a5a25a",
+          "snippet": "Hello Operations Team, I hope this message meets you well. I am writing on behalf of the administrative staff to request a restocking of office supplies for the month of June 2026. The following items",
+          "payload": {
+            "mimeType": "multipart/alternative"
+          },
+          "sizeEstimate": 13876,
+          "historyId": "75114",
+          "internalDate": "1780418584000",
+          "labels": [
+            {
+              "id": "INBOX",
+              "name": "INBOX"
+            },
+            {
+              "id": "IMPORTANT",
+              "name": "IMPORTANT"
+            },
+            {
+              "id": "CATEGORY_PERSONAL",
+              "name": "CATEGORY_PERSONAL"
+            },
+            {
+              "id": "UNREAD",
+              "name": "UNREAD"
+            }
+          ],
+          "From": "Jude Mbama <judethetaken@gmail.com>",
+          "To": "Jude Mbama <judeintechofficial@gmail.com>",
+          "Subject": "Request for Office Supplies Restocking"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message and wait for response1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message and wait for response2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message and wait for response3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message and wait for response4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response1": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response2": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response3": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response4": {
+      "main": [
+        [
+          {
+            "node": "Wait4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait4": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Send a message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message4": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e58cf1b1-04a9-4e5e-9212-cc5312cebd50",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0fbfc628d95590892d1d000da01e10aa8f3db5538fa5fa660e8d7a1e5bc4f98a"
+  },
+  "id": "oDEpSau9EtxKqi9M",
+  "tags": []
+}
