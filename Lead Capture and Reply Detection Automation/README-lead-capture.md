@@ -37,10 +37,13 @@ Most automations are demoed as if they never fail. This one assumes they will. W
 
 ## Screenshots
 
-![Lead Capture Form](./screenshots/01-lead-capture-form.png)
-![Lead Register Sheet](./screenshots/02-lead-register-sheet.png)
-![Lead Register — same file, showing the Error Log tab alongside the Leads Sheet tab](./screenshots/03-lead-register-with-error-log-tab.png)
-![Error Log tab — a real logged error entry](./screenshots/04-error-log-tab.jpg)
+[Lead Capture Form] <img width="960" height="540" alt="Lead Capture Submission Form" src="https://github.com/user-attachments/assets/4264bda2-239f-47eb-8b02-932a1bbeb2f6" />
+
+![Lead Register Sheet] <img width="960" height="540" alt="Lead Capture Register" src="https://github.com/user-attachments/assets/3130f0e5-3b8d-45e4-b49b-4b5bc235caa4" />
+
+![Error Log tab — a real logged error entry] <img width="960" height="540" alt="Error Log" src="https://github.com/user-attachments/assets/93f960e4-a172-4e60-91ab-f907b6dba80e" />
+
+[Workflow] <img width="960" height="540" alt="Lead Capture and Reply Detection System Workflow " src="https://github.com/user-attachments/assets/8b1c9169-2c6b-4308-a6d4-5b1b1a2b1cba" />
 
 ## Known Limitations & Next Steps
 
