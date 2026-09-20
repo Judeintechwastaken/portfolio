@@ -1,4 +1,3 @@
-<img width="540" height="1218" alt="Telegram Notification for Sales summary and No Sales" src="https://github.com/user-attachments/assets/ff4ca403-6fbc-4a19-a91c-63f0fe7dda93" />
 # Daily Sales Report Bot: Google Sheets to Telegram
 
 An n8n workflow that reads a business's sales from Google Sheets every morning at 7:00 (Lagos time), summarises yesterday, compares it with the day before, breaks it down by branch, and sends the report to Telegram. Every send is logged to a second sheet, and a day with no sales still gets a message instead of silence.
