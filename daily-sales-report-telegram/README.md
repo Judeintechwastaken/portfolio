@@ -151,5 +151,6 @@ daily-sales-report/
 
 ## Author
 
-Built by Mbama Chibuzo Jude. [Portfolio](https://judethetaken-portfolio.vercel.app) · [GitHub](https://github.com/Judeintechwastaken) · [LinkedIn](https://www.linkedin.com/in/jude-mbama-md-a87072354/)
+Built by **Dr. Chibuzo Jude Mbama**  Physician and AI automation engineer. 
+[Portfolio](https://judethetaken-portfolio.vercel.app) · [GitHub](https://github.com/Judeintechwastaken) · [LinkedIn](https://www.linkedin.com/in/jude-mbama-md-a87072354/)
 
