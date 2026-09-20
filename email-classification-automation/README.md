@@ -110,4 +110,8 @@ Being upfront about these is part of the engineering — a workflow presented as
 
 ---
 
-Built by **Dr. Chibuzo Jude Mbama**  Physician and AI automation engineer, applying the same risk-aware, human-checked design instincts from clinical practice to business process automation.
+## Author 
+
+Built by **Dr. Chibuzo Jude Mbama**  Physician and AI automation engineer. 
+[Portfolio](https://judethetaken-portfolio.vercel.app) · [GitHub](https://github.com/Judeintechwastaken) · [LinkedIn](https://www.linkedin.com/in/jude-mbama-md-a87072354/)
+
