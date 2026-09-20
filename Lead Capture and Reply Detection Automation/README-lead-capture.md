@@ -64,4 +64,6 @@ Most automations are demoed as if they never fail. This one assumes they will. W
 
 ---
 
-Built by **Dr. Chibuzo Jude Mbama** — physician and AI automation engineer, applying the same structured, nothing-falls-through-the-cracks thinking from clinical practice to lead management.
+Built by **Dr. Chibuzo Jude Mbama**  Physician and AI automation engineer. 
+[Portfolio](https://judethetaken-portfolio.vercel.app) · [GitHub](https://github.com/Judeintechwastaken) · [LinkedIn](https://www.linkedin.com/in/jude-mbama-md-a87072354/)
+
