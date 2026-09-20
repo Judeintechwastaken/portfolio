@@ -1,3 +1,4 @@
+<img width="540" height="1218" alt="Telegram Notification for Sales summary and No Sales" src="https://github.com/user-attachments/assets/ff4ca403-6fbc-4a19-a91c-63f0fe7dda93" />
 # Daily Sales Report Bot: Google Sheets to Telegram
 
 An n8n workflow that reads a business's sales from Google Sheets every morning at 7:00 (Lagos time), summarises yesterday, compares it with the day before, breaks it down by branch, and sends the report to Telegram. Every send is logged to a second sheet, and a day with no sales still gets a message instead of silence.
@@ -13,15 +14,16 @@ An n8n workflow that reads a business's sales from Google Sheets every morning a
 
 **The workflow**
 
-![Workflow canvas](screenshots/01-workflow-canvas.png)
+[Workflow canvas] <img width="960" height="540" alt="Workflow Canvas" src="https://github.com/user-attachments/assets/721443aa-5d94-4772-a53c-5888c49b4f9d" />
 
 **The report as it arrives on a phone**
 
-![Telegram report](screenshots/05-telegram-report.png)
+[Telegram report] <img width="540" height="1218" alt="Telegram Notification for Sales summary and No Sales" src="https://github.com/user-attachments/assets/ff4ca403-6fbc-4a19-a91c-63f0fe7dda93" />
 
 **The report log**
 
-![Report log sheet](screenshots/06-reports-log.png)
+[Report log sheet]<img width="960" height="540" alt="No Sales Record on Sales Sheet" src="https://github.com/user-attachments/assets/6a058df6-45c1-4115-b651-5850336b3cb0" />
+
 
 ### Sample report
 
@@ -150,5 +152,5 @@ daily-sales-report/
 
 ## Author
 
-Built by Jude. [Portfolio](https://judethetaken-portfolio.vercel.app) · [GitHub](https://github.com/Judeintechwastaken) · [LinkedIn](https://www.linkedin.com/in/jude-mbama-md-a87072354/)
+Built by Mbama Chibuzo Jude. [Portfolio](https://judethetaken-portfolio.vercel.app) · [GitHub](https://github.com/Judeintechwastaken) · [LinkedIn](https://www.linkedin.com/in/jude-mbama-md-a87072354/)
 
