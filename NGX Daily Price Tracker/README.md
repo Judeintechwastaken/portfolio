@@ -101,4 +101,5 @@ Some illiquid stocks report `0.00` for High/Low when no real intraday range occu
 
 ## Author
 Built by **Dr. Chibuzo Jude Mbama**  Physician and AI automation engineer. 
+[Portfolio](https://judethetaken-portfolio.vercel.app) · [GitHub](https://github.com/Judeintechwastaken) · [LinkedIn](https://www.linkedin.com/in/jude-mbama-md-a87072354/)
 
