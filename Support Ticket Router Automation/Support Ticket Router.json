@@ -1,0 +1,722 @@
+{
+  "name": "Support Ticket Router",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a14b255e-a62f-48d5-a8b2-ddd609efb8c6",
+              "name": "name",
+              "value": "={{ $json.Name }}",
+              "type": "string"
+            },
+            {
+              "id": "c7c164c7-6329-4496-944b-d14cccdcf647",
+              "name": "email",
+              "value": "={{ String($json.Email || '').trim().toLowerCase() }}",
+              "type": "string"
+            },
+            {
+              "id": "0b59215b-a95f-49b6-a016-00c8c17d528a",
+              "name": "subject",
+              "value": "={{ String($json.Subject || '').trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "aa6290ad-5f86-4166-9ebc-2ea7e884bb5d",
+              "name": "message",
+              "value": "={{ String($json.Message || '').trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "dee53d31-40c9-4e24-813a-45be91258eb9",
+              "name": "source",
+              "value": "form",
+              "type": "string"
+            },
+            {
+              "id": "0b949c52-ee35-4c75-ab01-b6dee4ce435d",
+              "name": "received_at",
+              "value": "={{ $json.submittedAt }}",
+              "type": "string"
+            },
+            {
+              "id": "4b095da6-afdf-447b-b33a-a10a36b02103",
+              "name": "search_text",
+              "value": "={{ (String($json.Subject || '') + ' ' + String($json.Message || '')).toLowerCase() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        208,
+        32
+      ],
+      "id": "3bb01154-9a15-44f9-9730-93ecba309419",
+      "name": "Normalise"
+    },
+    {
+      "parameters": {
+        "formTitle": "Contact Support",
+        "formDescription": "Tell us what's going on and the right team will get back to you. We aim to reply within one business day.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Subject"
+            },
+            {
+              "fieldLabel": "Message",
+              "fieldType": "textarea",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false,
+          "buttonLabel": "Submit ticket"
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        32
+      ],
+      "id": "bc99f32c-423d-47e3-899f-b26816ec0fb8",
+      "name": "Support Form",
+      "webhookId": "4e5d46d0-0ef2-4f68-91ee-15532ec8a171"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\n\n// Today's date in Lagos time as YYYYMMDD\nconst datePart = new Date()\n  .toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' })\n  .replace(/-/g, '');\n\n// Four random digits, keeping any leading zeros\nconst rand = String(Math.floor(Math.random() * 10000)).padStart(4, '0');\n\nreturn {\n  json: {\n    ...item,\n    ticket_id: `TCK-${datePart}-${rand}`\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        32
+      ],
+      "id": "b908350e-62c8-41c8-825a-b70813751cd7",
+      "name": "Ticket ID"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ /\\b(invoice|refund|payment|receipt|charged|subscription)/i.test($json.search_text) }}",
+                    "rightValue": "=/\\b(invoice|refund|payment|receipt|charged|subscription)/i",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "80e13541-668f-432e-8270-0e2fa4cd7b05"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Billing"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "46206213-d619-43e3-b184-840cd09ee674",
+                    "leftValue": "={{ /\\b(broken|error|not\\s+working|crash|login|password|faulty|screen)/i.test($json.search_text) }}",
+                    "rightValue": "=/\\b(broken|error|not\\s+working|crash|login|password|faulty|screen)/i\t",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Technical"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "7e1d6ba8-6180-4342-94fd-369a394a3254",
+                    "leftValue": "={{ /\\b(price|pricing|quote|buy|order|demo|how\\s+much|availability)/i.test($json.search_text) }}",
+                    "rightValue": "=/\\b(price|pricing|quote|buy|order|demo|how\\s+much|availability)/i",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Sales"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "allMatchingOutputs": false
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "1b968030-e10f-4afb-875d-7f2ce1c41c05",
+      "name": "Category"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#billing"
+        },
+        "text": "=🎫 *New ticket {{ $json.ticket_id }}*\n*Category:* Billing\n*From:* {{ $json.name }} ({{ $json.email }})\n*Subject:* {{ $json.subject || '(no subject)' }}\n*Message:* {{ $json.message.slice(0, 200) }}{{ $json.message.length > 200 ? '…' : '' }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        928,
+        -176
+      ],
+      "id": "a70cb5cc-c6cd-46dd-9aa8-819747cec7df",
+      "name": "Post to Billing",
+      "webhookId": "dd6832dd-9284-42ca-a3f7-93f1ddd4107a",
+      "credentials": {
+        "slackApi": {
+          "id": "vPoyxFR8oumjIgnw",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#tech-support",
+          "mode": "name"
+        },
+        "text": "=🎫 *New ticket {{ $json.ticket_id }}*\n*Category:* Technical\n*From:* {{ $json.name }} ({{ $json.email }})\n*Subject:* {{ $json.subject || '(no subject)' }}\n*Message:* {{ $json.message.slice(0, 200) }}{{ $json.message.length > 200 ? '…' : '' }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        928,
+        0
+      ],
+      "id": "64d237fc-115f-446e-a19d-dde53d9287c9",
+      "name": "Post to Tech",
+      "webhookId": "e335e8ba-d295-45e2-b475-db0e9f8fa801",
+      "credentials": {
+        "slackApi": {
+          "id": "vPoyxFR8oumjIgnw",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#sales",
+          "mode": "name"
+        },
+        "text": "=🎫 *New ticket {{ $json.ticket_id }}*\n*Category:* Sales\n*From:* {{ $json.name }} ({{ $json.email }})\n*Subject:* {{ $json.subject || '(no subject)' }}\n*Message:* {{ $json.message.slice(0, 200) }}{{ $json.message.length > 200 ? '…' : '' }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        928,
+        144
+      ],
+      "id": "53b21810-dda3-4369-87f9-d32abe52a4b9",
+      "name": "Post to Sales",
+      "webhookId": "21d2cb4b-8e07-41ca-be36-89c2315d382e",
+      "credentials": {
+        "slackApi": {
+          "id": "vPoyxFR8oumjIgnw",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#general",
+          "mode": "name"
+        },
+        "text": "=🎫 *New ticket {{ $json.ticket_id }}*\n*Category:* General\n*From:* {{ $json.name }} ({{ $json.email }})\n*Subject:* {{ $json.subject || '(no subject)' }}\n*Message:* {{ $json.message.slice(0, 200) }}{{ $json.message.length > 200 ? '…' : '' }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        928,
+        272
+      ],
+      "id": "abdd4950-c0de-466d-9392-5605e83d156a",
+      "name": "Post to General",
+      "webhookId": "3172870f-9878-4cfe-b910-6a53a781a067",
+      "credentials": {
+        "slackApi": {
+          "id": "vPoyxFR8oumjIgnw",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "8579fb1a-f85f-4e3f-92fe-4b6bcd93c33a",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "32685072-d37f-4acd-b037-72aa5bb7fb3c",
+              "name": "ticket_id",
+              "value": "={{ $('Ticket ID').first().json.ticket_id }}",
+              "type": "string"
+            },
+            {
+              "id": "2c57d6a3-311f-4c9c-9a8c-aa8746cc78d2",
+              "name": "name",
+              "value": "={{ $('Ticket ID').first().json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "02195a43-8c9a-4db8-b176-a813133f3f43",
+              "name": "email",
+              "value": "={{ $('Ticket ID').first().json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "276a2723-37b3-4a1a-bb46-cfa011234862",
+              "name": "subject",
+              "value": "={{ $('Ticket ID').first().json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "c23df02c-6e99-4097-9b47-584de2ff3efb",
+              "name": "message",
+              "value": "={{ $('Ticket ID').first().json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "09981cbe-1cce-4511-aae8-6dd26119a620",
+              "name": "received_at",
+              "value": "={{ $('Ticket ID').first().json.received_at }}",
+              "type": "string"
+            },
+            {
+              "id": "99e9f81f-f251-42b5-9e95-e0a559e5035d",
+              "name": "category",
+              "value": "={{ $('Post to Billing').isExecuted ? 'Billing' : $('Post to Tech').isExecuted ? 'Technical' : $('Post to Sales').isExecuted ? 'Sales' : 'General' }}",
+              "type": "string"
+            },
+            {
+              "id": "21099b18-f4b2-43c9-9ff5-1fd000f86e63",
+              "name": "routed_to",
+              "value": "={{ $('Post to Billing').isExecuted ? '#billing' : $('Post to Tech').isExecuted ? '#tech-support' : $('Post to Sales').isExecuted ? '#sales' : '#general' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1552,
+        32
+      ],
+      "id": "a26db48d-2ed0-41ee-b89f-a4b88fd19f44",
+      "name": "Ticket Details"
+    },
+    {
+      "parameters": {
+        "sendTo": "pimpmenace@gmail.com",
+        "subject": "={{ $json.ticket_id }} - {{ $json.subject || 'Your support request' }}",
+        "message": "=Hi {{ $json.name.split(' ')[0].replace(/[<>&]/g, '') }}, thanks for getting in touch.<br>\nYour ticket reference is {{ $json.ticket_id }}. Please quote it if you write to us again.<br>\nIt has gone to our {{ ({Billing: 'billing', Technical: 'technical support', Sales: 'sales', General: 'support'})[$json.category] }} team, who aim to reply within one business day.<br>\nKind regards, Support Team",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        32
+      ],
+      "id": "5822762c-b191-42d6-b090-cd3a023ab6ab",
+      "name": "Auto Reply",
+      "webhookId": "312a6522-85ff-43db-9dd8-68ff328c1d69",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "RICU4KSXugwy517Y",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1OK2muf1ZSux2rz5ynJ45ZTlUdBXiEKeNR05Hnc63TgM",
+          "mode": "list",
+          "cachedResultName": "Tickets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OK2muf1ZSux2rz5ynJ45ZTlUdBXiEKeNR05Hnc63TgM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OK2muf1ZSux2rz5ynJ45ZTlUdBXiEKeNR05Hnc63TgM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket ID ": "={{ $('Ticket Details').first().json.ticket_id }}",
+            "Received At": "={{ $('Ticket Details').first().json.received_at }}",
+            " Name": "={{ $('Ticket Details').first().json.name }}",
+            "Email": "={{ $('Ticket Details').first().json.email }}",
+            "Subject": "={{ $('Ticket Details').first().json.subject }}",
+            "Message": "={{ $('Ticket Details').first().json.message }}",
+            "Category": "={{ $('Ticket Details').first().json.category }}",
+            "Routed To": "={{ $('Ticket Details').first().json.routed_to }}",
+            "Status": "Open"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Ticket ID ",
+              "displayName": "Ticket ID ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Received At",
+              "displayName": "Received At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": " Name",
+              "displayName": " Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Routed To",
+              "displayName": "Routed To",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1968,
+        32
+      ],
+      "id": "6791e9ea-0a5f-49d6-ab26-49d6201fcfc2",
+      "name": "Log Ticket",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "OqF46LDrr2mGVepQ",
+          "name": "Google Sheets account 6"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Support Form": {
+      "main": [
+        [
+          {
+            "node": "Normalise",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise": {
+      "main": [
+        [
+          {
+            "node": "Ticket ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ticket ID": {
+      "main": [
+        [
+          {
+            "node": "Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Category": {
+      "main": [
+        [
+          {
+            "node": "Post to Billing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Post to Tech",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Post to Sales",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Post to General",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to Billing": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to Tech": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Post to Sales": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Post to General": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Ticket Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ticket Details": {
+      "main": [
+        [
+          {
+            "node": "Auto Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Reply": {
+      "main": [
+        [
+          {
+            "node": "Log Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "0fddc267-48cf-4013-a9ae-a37065641f1b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f1d078a871a9feb82e33ade401a9e1a1882505e7e4657401304a7d3b63848312"
+  },
+  "nodeGroups": [],
+  "id": "EsD1VATlyXLT8uXT",
+  "tags": []
+}
