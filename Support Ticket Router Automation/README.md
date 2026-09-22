@@ -6,7 +6,7 @@ An n8n workflow that takes support tickets from a web form, sorts them into Bill
 
 ## Demo
 
-**Video:** [add Loom link here]
+**Video:** https://www.loom.com/share/0b2442033cdf4e94a490711b1e193555
 
 **The workflow**
 
