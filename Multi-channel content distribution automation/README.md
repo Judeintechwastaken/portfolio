@@ -111,3 +111,8 @@ Each action step (Facebook, LinkedIn, WhatsApp, Slack) counts as one billed Zapi
 ## Disclaimer
 
 The demo article used to trigger this automation is educational content about investing basics and does not constitute financial advice.
+
+---
+
+Built by **Dr. Chibuzo Jude Mbama**  Physician and AI automation engineer. 
+[Portfolio](https://judethetaken-portfolio.vercel.app) · [GitHub](https://github.com/Judeintechwastaken) · [LinkedIn](https://www.linkedin.com/in/jude-mbama-md-a87072354/)
