@@ -55,38 +55,41 @@ A 5 minute walkthrough of the Zap and all four destinations receiving the same l
 
 | Steps 1–4 | Steps 5–8 |
 |---|---|
-| ![Zap editor, steps 1–4] <img width="960" height="540" alt="Page 1 Zap" src="https://github.com/user-attachments/assets/0831ac17-fbfe-4a76-8d90-1743b24da7fa" /> | ![Zap editor, steps 5–8](screenshots/01b-zap-editor-full-steps5-8.png) |
+| ![Zap editor, steps 1–4] <img width="960" height="540" alt="Page 1 Zap" src="https://github.com/user-attachments/assets/0831ac17-fbfe-4a76-8d90-1743b24da7fa" /> | ![Zap editor, steps 5–8] <img width="960" height="540" alt="Page 2 Zap" src="https://github.com/user-attachments/assets/1e6e2d64-4150-49c4-a508-9206b6649880" /> |
 
 **Each step's configuration:**
 
 | Step | Screenshot |
 |------|------------|
-| RSS trigger | ![RSS trigger](screenshots/02a-rss-trigger.png) |
-| Filter conditions | ![Filter](screenshots/02b-filter.png) |
-| Strip HTML | ![Formatter — remove HTML](screenshots/02c-formatter-remove-html.png) |
-| Trim to 200 chars | ![Formatter — truncate](screenshots/02d-formatter-truncate.png) |
-| Facebook Pages | ![Facebook step](screenshots/02e-facebook-step.png) |
-| LinkedIn | ![LinkedIn step](screenshots/02f-linkedin-step.png) |
-| WhatsApp (GreenAPI webhook) | ![WhatsApp step](screenshots/02g-whatsapp-step.png) |
-| Slack | ![Slack step](screenshots/02h-slack-step.png) |
+| RSS trigger | [RSS trigger] <img width="960" height="540" alt="RSS Trigger" src="https://github.com/user-attachments/assets/3948fe43-ae4b-4a8b-9b97-8c34074545a6" /> |
+| Filter conditions | [Filter] <img width="960" height="540" alt="Filter" src="https://github.com/user-attachments/assets/715dbe4b-4f2d-43d2-8f34-46225c746544" /> |
+| Strip HTML | [Formatter — remove HTML] <img width="960" height="540" alt="Formatter Remove HTML" src="https://github.com/user-attachments/assets/82600cd2-b75a-459f-9c91-0e3aebd3e12e" /> |
+| Trim to 200 chars | [Formatter — truncate] <img width="960" height="540" alt="Formatter Truncate" src="https://github.com/user-attachments/assets/104a3e39-e4a2-4c51-8c2f-173e4e618a9e" /> |
+| Facebook Pages | ![Facebook step] <img width="960" height="540" alt="Facebook step" src="https://github.com/user-attachments/assets/5f28811b-a29e-4ac3-90e7-2e6d3229cb27" /> |
+| LinkedIn | [LinkedIn step] <img width="960" height="540" alt="Linkedin Setup" src="https://github.com/user-attachments/assets/c5366248-5d31-4295-b3c6-6b70b8add7ed" /> |
+| WhatsApp (GreenAPI webhook) | [WhatsApp step] <img width="960" height="540" alt="WhatsApp Step" src="https://github.com/user-attachments/assets/79322e0a-fffd-499c-a7f9-af3becc3421b" /> |
+| Slack | [Slack step] <img width="960" height="540" alt="Slack Step" src="https://github.com/user-attachments/assets/79a87b4a-0db0-45e7-8d7d-cce08fe5d41d" /> |
 
 **The post, live on every destination:**
 
 | Facebook | LinkedIn |
 |---|---|
-| ![Facebook post live](screenshots/03-facebook-post-live.png) | ![LinkedIn post live](screenshots/04-linkedin-post-live.png) |
+| [Facebook post live] <img width="960" height="540" alt="Facebook post Live" src="https://github.com/user-attachments/assets/eee96e12-590d-4bb1-8d2b-e4c6738be0ea" /> | [LinkedIn post live] <img width="960" height="540" alt="Linkedin Post Live" src="https://github.com/user-attachments/assets/e166c179-be5e-441e-b5ef-78c126a126a1" /> |
 
 | WhatsApp | Slack |
 |---|---|
-| ![WhatsApp message](screenshots/05-whatsapp-message-phone.jpeg) | ![Slack alert](screenshots/06-slack-alert.png) |
+| [WhatsApp message] <img width="540" height="1218" alt="WhatsApp Phone message" src="https://github.com/user-attachments/assets/9b53688f-faf6-41ce-a41d-f111ab9b3451" /> | [Slack alert] <img width="960" height="540" alt="Slack Post live" src="https://github.com/user-attachments/assets/6f0725cc-5556-4557-a09c-7830d64439a3" /> |
 
 **A successful run in Zap History:**
 
-![Zap History run](screenshots/07-zap-history-run.png)
+[Zap History run] <img width="960" height="540" alt="Zapier History" src="https://github.com/user-attachments/assets/eca9e199-d9ba-4310-b09d-f99294ba92bb" />
 
 ### Brand assets
 
-Reusable logo, Facebook cover photo and LinkedIn banner used across the Page and Company Page, in [`brand-assets/`](brand-assets/).
+Reusable logo, Facebook cover photo and LinkedIn banner used across the Page and Company Page, in [`brand-assets/`] <img width="1128" height="191" alt="03-linkedin-banner" src="https://github.com/user-attachments/assets/3f5e0dce-fd75-406d-a3b0-44223ab377f5" />
+<img width="1640" height="624" alt="02-facebook-cover-photo" src="https://github.com/user-attachments/assets/c11ecfb3-189b-4de2-8066-ab0e24f85edb" />
+<img width="1080" height="1080" alt="01-facebook-profile-logo" src="https://github.com/user-attachments/assets/6486be94-db60-4224-917e-ee9ddb5b573c" />
+.
 
 ## Setup
 
