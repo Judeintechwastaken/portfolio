@@ -1,0 +1,937 @@
+{
+  "name": "CAPSTONE PROJECT",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "8440b822-4e34-4018-84d3-c5ba8cf63ca3",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -32,
+        -112
+      ],
+      "id": "fbed5a96-368b-4f76-9949-e8503c7ef2ff",
+      "name": "Webhook",
+      "webhookId": "57fafc6d-6ae0-48a1-8e50-fe1ddfef550b"
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhookData = $input.all()[0].json;\n\n// Data is inside body.message.toolCalls[0].function.arguments\nconst args = webhookData.body.message.toolCalls[0].function.arguments;\n\n// Get core customer data\nconst customer_name = (args[\"customer_name \"] || args[\"customer_name\"] || \"Unknown\").trim();\nconst phone_number = (args.phone_number || \"Unknown\").trim();\nconst request_type = (args.request_type || \"callback\").toLowerCase().trim();\nconst details = (args.details || \"No details provided\").trim();\n\n// Nigerian time now\nconst now = new Date();\nconst timeOptions = {\n  timeZone: \"Africa/Lagos\",\n  hour: \"2-digit\",\n  minute: \"2-digit\",\n  hour12: true\n};\n\n// ================================\n// INITIALIZE ALL VARIABLES\n// ================================\nlet estimated_delivery_time = \"N/A\";\nlet payment_method = \"N/A\";\nlet reservation_date = \"N/A\";\nlet reservation_time = \"N/A\";\nlet number_of_people = \"N/A\";\nlet reservation_deposit = \"N/A\";\nlet callback_reason = \"N/A\";\nlet callback_priority = \"N/A\";\n\n// ================================\n// ORDER LOGIC\n// ================================\nif (request_type === \"order\") {\n\n  // Delivery window 30-60 mins from now\n  const deliveryStart = new Date(now.getTime() + 30 * 60000);\n  const deliveryEnd = new Date(now.getTime() + 60 * 60000);\n  estimated_delivery_time = `Between ${deliveryStart.toLocaleTimeString(\"en-NG\", timeOptions)} and ${deliveryEnd.toLocaleTimeString(\"en-NG\", timeOptions)}`;\n\n  // Payment for orders\n  payment_method = \"Cash or GTBank Transfer — Account Name: Mama Tee's Kitchen | Account Number: 0123456789 | Payment must be made before dispatch\";\n\n}\n\n// ================================\n// RESERVATION LOGIC\n// ================================\nelse if (request_type === \"reservation\") {\n\n  // Extract number of people FIRST before date\n  // to avoid date regex grabbing people count\n  const peopleMatch = details.match(\n    /\\b(\\d+)\\s*(?:people|persons|guests|pax|guest)\\b/i\n  );\n  number_of_people = peopleMatch\n    ? peopleMatch[1] + \" people\"\n    : (args.number_of_people || \"Check details field\");\n\n  // Remove the people number from details\n  // before extracting date so it doesnt interfere\n  const detailsForDate = details\n    .replace(/\\b\\d+\\s*(?:people|persons|guests|pax|guest)\\b/gi, \"\")\n    .replace(/\\bfor\\s+\\d+\\b/gi, \"\")\n    .trim();\n\n  // Extract date - looks for patterns like:\n  // 30th May, May 30th, 30/05, 30-05-2026\n  // Saturday 24th, next Friday etc\n  const dateMatch = detailsForDate.match(\n    /\\b(\\d{1,2}(?:st|nd|rd|th)?\\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)|(?:January|February|March|April|May|June|July|August|September|October|November|December)\\s+\\d{1,2}(?:st|nd|rd|th)?|\\d{1,2}[\\/\\-]\\d{1,2}(?:[\\/\\-]\\d{2,4})?|(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\\s+\\d{1,2}(?:st|nd|rd|th)?|\\d{1,2}(?:st|nd|rd|th)\\s+of\\s+\\w+)\\b/i\n  );\n  reservation_date = dateMatch\n    ? dateMatch[0]\n    : (args.reservation_date || \"Check details field\");\n\n  // Extract time - looks for patterns like:\n  // 2pm, 2:00pm, 14:00, 2 PM\n  const timeMatch = details.match(\n    /\\b(\\d{1,2}(?::\\d{2})?\\s*(?:am|pm|AM|PM)|(?:\\d{2}:\\d{2}))\\b/i\n  );\n  reservation_time = timeMatch\n    ? timeMatch[0]\n    : (args.reservation_time || \"Check details field\");\n\n  // Payment for reservations\n  payment_method = \"Deposit of N5,000 required — GTBank Transfer | Account Name: Mama Tee's Kitchen | Account Number: 0123456789\";\n  reservation_deposit = \"N5,000 (goes toward total bill)\";\n\n}\n\n// ================================\n// CALLBACK LOGIC\n// ================================\nelse if (request_type === \"callback\") {\n\n  // Extract reason from details\n  callback_reason = details || \"Customer did not specify reason\";\n\n  // Set priority based on keywords in details\n  const detailsLower = details.toLowerCase();\n  const urgentKeywords = [\"urgent\", \"emergency\", \"immediately\", \"now\", \"asap\"];\n  const highKeywords = [\"complaint\", \"problem\", \"issue\", \"wrong\", \"error\", \"bad\", \"angry\", \"unhappy\", \"refund\"];\n  const lowKeywords = [\"enquiry\", \"inquiry\", \"just asking\", \"curious\", \"wondering\", \"information\"];\n\n  if (urgentKeywords.some(word => detailsLower.includes(word))) {\n    callback_priority = \"🔴 Urgent\";\n  } else if (highKeywords.some(word => detailsLower.includes(word))) {\n    callback_priority = \"🟠 High\";\n  } else if (lowKeywords.some(word => detailsLower.includes(word))) {\n    callback_priority = \"🟢 Low\";\n  } else {\n    callback_priority = \"🟡 Normal\";\n  }\n\n  payment_method = \"N/A — Callback request\";\n\n}\n\n// ================================\n// RETURN ALL DATA\n// ================================\nreturn [{\n  json: {\n    customer_name,\n    phone_number,\n    request_type,\n    details,\n    estimated_delivery_time,\n    payment_method,\n    reservation_date,\n    reservation_time,\n    number_of_people,\n    reservation_deposit,\n    callback_reason,\n    callback_priority,\n    timestamp: new Date().toLocaleString(\"en-NG\", {\n      timeZone: \"Africa/Lagos\",\n      dateStyle: \"full\",\n      timeStyle: \"short\"\n    })\n  }\n}];"
+      },
+      "id": "e1ec1956-9ca3-434f-a7d2-c70be15e5235",
+      "name": "Extract Customer Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.request_type }}",
+                    "rightValue": "order",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "8dceb43d-1f51-4c38-a499-56e66ba62bd6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Order"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c7a59b9f-ec41-4eb4-8246-4d7566bdd740",
+                    "leftValue": "={{ $json.request_type }}",
+                    "rightValue": "reservation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Reservation"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "145b9bfc-65ba-492f-a13e-f7e5d777b8b2",
+                    "leftValue": "={{ $json.request_type }}",
+                    "rightValue": "callback",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Callback"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        -128
+      ],
+      "id": "1a5d3613-c929-40e1-93ba-f2c9399edab6",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appNE2cFtkpNAourd",
+          "mode": "list",
+          "cachedResultName": "Mama Tee's Orders & Reservations",
+          "cachedResultUrl": "https://airtable.com/appNE2cFtkpNAourd"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblxRA6g0fpnac1ae",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appNE2cFtkpNAourd/tblxRA6g0fpnac1ae"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Customer Name": "={{ $json.customer_name }}",
+            "Phone": "={{ $json.phone_number }}",
+            "Request Type": "={{ $json.request_type }}",
+            "Details": "={{ $json.details }}",
+            "Estimated Delivery Time": "={{ $json.estimated_delivery_time }}",
+            "Payment Method": "={{ $json.payment_method }}",
+            "Reservation Date ": "={{ $json.reservation_date }}",
+            "Reservation Time": "={{ $json.reservation_time }}",
+            "Number of People": "={{ $json.number_of_people }}",
+            "Reservation Deposit": "={{ $json.reservation_deposit }}",
+            "Callback Reason": "={{ $json.callback_reason }}",
+            "Callback Priority": "={{ $json.callback_priority }}",
+            "Timestamp": "={{ $json.timestamp }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Request Type",
+              "displayName": "Request Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Details",
+              "displayName": "Details",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estimated Delivery Time",
+              "displayName": "Estimated Delivery Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Payment Method",
+              "displayName": "Payment Method",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reservation Date ",
+              "displayName": "Reservation Date ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reservation Time",
+              "displayName": "Reservation Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Number of People",
+              "displayName": "Number of People",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reservation Deposit",
+              "displayName": "Reservation Deposit",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Callback Reason",
+              "displayName": "Callback Reason",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Callback Priority",
+              "displayName": "Callback Priority",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        -304
+      ],
+      "id": "1084e567-1289-4c0e-bd4c-7e4cecff5923",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "qySxzeyiYLBb7TWy",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "826115339",
+        "text": "=🍽️ NEW ORDER RECEIVED\n\n👤 Customer: {{ $json.fields[\"Customer Name\"] }}\n\n📞 Phone: {{ $json.fields.Phone }}\n\n📋 Order Details: {{ $json.fields.Details }}\n\n⏰ Estimated Delivery: {{ $json.fields[\"Estimated Delivery Time\"] }}\n\n💳 Payment: {{ $json.fields[\"Payment Method\"] }}\n\n🕐 Time Logged: {{ $json.fields.Timestamp }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        -304
+      ],
+      "id": "81d70a95-cc0e-4bc0-91f6-52ea3443b30b",
+      "name": "Send a text message",
+      "webhookId": "20465e9b-2594-4ebe-acc8-9092e505e7e5",
+      "credentials": {
+        "telegramApi": {
+          "id": "tW3FjYFeg7I4FlAh",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appNE2cFtkpNAourd",
+          "mode": "list",
+          "cachedResultName": "Mama Tee's Orders & Reservations",
+          "cachedResultUrl": "https://airtable.com/appNE2cFtkpNAourd"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblxRA6g0fpnac1ae",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appNE2cFtkpNAourd/tblxRA6g0fpnac1ae"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Customer Name": "={{ $json.customer_name }}",
+            "Phone": "={{ $json.phone_number }}",
+            "Request Type": "={{ $json.request_type }}",
+            "Details": "={{ $json.details }}",
+            "Estimated Delivery Time": "={{ $json.estimated_delivery_time }}",
+            "Payment Method": "={{ $json.payment_method }}",
+            "Reservation Date ": "={{ $json.reservation_date }}",
+            "Number of People": "={{ $json.number_of_people }}",
+            "Reservation Time": "={{ $json.reservation_time }}",
+            "Reservation Deposit": "={{ $json.reservation_deposit }}",
+            "Callback Reason": "={{ $json.callback_reason }}",
+            "Callback Priority": "={{ $json.callback_priority }}",
+            "Timestamp": "={{ $json.timestamp }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Request Type",
+              "displayName": "Request Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Details",
+              "displayName": "Details",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estimated Delivery Time",
+              "displayName": "Estimated Delivery Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Payment Method",
+              "displayName": "Payment Method",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reservation Date ",
+              "displayName": "Reservation Date ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reservation Time",
+              "displayName": "Reservation Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Number of People",
+              "displayName": "Number of People",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reservation Deposit",
+              "displayName": "Reservation Deposit",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Callback Reason",
+              "displayName": "Callback Reason",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Callback Priority",
+              "displayName": "Callback Priority",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        -112
+      ],
+      "id": "a6ce07f6-23dd-4c27-a3b4-5ea7de172021",
+      "name": "Create a record1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "qySxzeyiYLBb7TWy",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "826115339",
+        "text": "= *RESERVATION REQUEST*\n\n👤 Customer: {{ $('Extract Customer Data').item.json.customer_name }}\n\n📞 Phone: {{ $('Extract Customer Data').item.json.phone_number }}\n\n📋 Details: {{ $('Extract Customer Data').item.json.details }}\n\n📆 Date: {{ $json.fields['Reservation Date '] }}\n\n🕐 Time: {{ $json.fields['Reservation Time'] }}\n\n👥 Number of People: {{ $json.fields['Number of People'] }}\n\n💰 Deposit Required: {{ $json.fields['Reservation Deposit'] }}\n\n💳 Payment: {{ $json.fields['Payment Method'] }}\n\n🕐 Time Logged: {{ $json.fields.Timestamp }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        -112
+      ],
+      "id": "4438f3fc-4fed-4890-a462-60eee43cd78b",
+      "name": "Send a text message1",
+      "webhookId": "bae62251-9e46-4b2b-b5ce-6b9d51448119",
+      "credentials": {
+        "telegramApi": {
+          "id": "tW3FjYFeg7I4FlAh",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appNE2cFtkpNAourd",
+          "mode": "list",
+          "cachedResultName": "Mama Tee's Orders & Reservations",
+          "cachedResultUrl": "https://airtable.com/appNE2cFtkpNAourd"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblxRA6g0fpnac1ae",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appNE2cFtkpNAourd/tblxRA6g0fpnac1ae"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Customer Name": "={{ $json.customer_name }}",
+            "Phone": "={{ $json.phone_number }}",
+            "Request Type": "={{ $json.request_type }}",
+            "Details": "={{ $json.details }}",
+            "Estimated Delivery Time": "={{ $json.estimated_delivery_time }}",
+            "Payment Method": "={{ $json.payment_method }}",
+            "Reservation Date ": "={{ $json.reservation_date }}",
+            "Reservation Time": "={{ $json.reservation_time }}",
+            "Number of People": "={{ $json.number_of_people }}",
+            "Reservation Deposit": "={{ $json.reservation_deposit }}",
+            "Callback Reason": "={{ $json.callback_reason }}",
+            "Callback Priority": "={{ $json.callback_priority }}",
+            "Timestamp": "={{ $json.timestamp }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Request Type",
+              "displayName": "Request Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Details",
+              "displayName": "Details",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estimated Delivery Time",
+              "displayName": "Estimated Delivery Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Payment Method",
+              "displayName": "Payment Method",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reservation Date ",
+              "displayName": "Reservation Date ",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reservation Time",
+              "displayName": "Reservation Time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Number of People",
+              "displayName": "Number of People",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reservation Deposit",
+              "displayName": "Reservation Deposit",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Callback Reason",
+              "displayName": "Callback Reason",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Callback Priority",
+              "displayName": "Callback Priority",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        80
+      ],
+      "id": "76357584-631e-4080-ac26-9813b2d6d710",
+      "name": "Create a record2",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "qySxzeyiYLBb7TWy",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "826115339",
+        "text": "=📞 NEW CALLBACK REQUEST\n\n👤 Customer: {{ $('Extract Customer Data').item.json.customer_name }}\n\n📞 Phone: {{ $('Extract Customer Data').item.json.phone_number }}\n\n❓ Reason: {{ $('Extract Customer Data').item.json.callback_reason }}\n\n🚨 Priority: {{ $('Extract Customer Data').item.json.callback_priority }}\n\n🕐 Time Logged: {{ $('Extract Customer Data').item.json.timestamp }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        80
+      ],
+      "id": "630cb7bb-9227-4174-84ef-e640cd1d5f65",
+      "name": "Send a text message2",
+      "webhookId": "b72ca86e-a479-4aa5-b6da-f36cd1249124",
+      "credentials": {
+        "telegramApi": {
+          "id": "tW3FjYFeg7I4FlAh",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        -368
+      ],
+      "id": "89800a45-ac29-4a11-8304-1bf35e2cf340",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "chatId": "826115339",
+        "text": "=🚨 Workflow Error Alert\n\nAn error has occurred in your n8n workflow.\n\nWorkflow: {{ $json.workflow.name }}\nNode: {{ $json.execution.lastNodeExecuted }}\nExecution Time: {{$now.toFormat('dd/MM/yyyy hh:mm a')}}\n\nError Message:\n{{ $json.execution.error.message }}\n\nPlease check your workflow execution logs for more details and resolve the issue as soon as possible.",
+        "additionalFields": {
+          "appendAttribution": true
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        -368
+      ],
+      "id": "0897c500-ed4a-4796-86ce-c0d8e6679c9f",
+      "name": "Send a text message3",
+      "webhookId": "62003dfc-abc3-4f72-90c1-b9aace60fb34",
+      "credentials": {
+        "telegramApi": {
+          "id": "tW3FjYFeg7I4FlAh",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Customer Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Customer Data": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create a record1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create a record2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "c94da23e-0841-4c33-b220-1c8242919fdc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3369bb7ab023b87ccfdbf28bb148349aa247e00f3b685c5676ebb304007cda12"
+  },
+  "id": "kecG50xMfgpo8vpG",
+  "tags": []
+}
