@@ -1,2 +1,3 @@
 # portfolio
-This is a Portfolio of my ai automated projects
+AI Automation Engineer | Building AI-powered workflow, integration, and business automation systems
+
